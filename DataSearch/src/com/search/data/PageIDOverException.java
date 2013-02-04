@@ -1,6 +1,6 @@
 package com.search.data;
 
-public class PageIDOverException extends Exception{
+public class PageIDOverException extends Exception {
 
 	/**
 	 * 

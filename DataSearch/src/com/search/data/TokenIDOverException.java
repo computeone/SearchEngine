@@ -1,6 +1,6 @@
 package com.search.data;
 
-public class TokenIDOverException extends Exception{
+public class TokenIDOverException extends Exception {
 
 	/**
 	 * 

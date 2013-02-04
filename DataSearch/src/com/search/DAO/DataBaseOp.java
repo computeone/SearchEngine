@@ -38,6 +38,7 @@ import com.search.index.Index_Structure;
  */
 public class DataBaseOp {
 	private static int id = 1;
+
 	public String SavePage_sql() throws Exception, SQLException {
 		String sql = "insert into document(ID,CREATE_DATE,CONTENT)values (?,?,?)";
 		return sql;
@@ -55,7 +56,7 @@ public class DataBaseOp {
 	public String SaveToken_sql(int size) throws Exception, SQLException {
 		String sql;
 		switch (size) {
-		case 1:	
+		case 1:
 			sql = "insert into token_1(FREQUENCY,TERM,TOKENS_ID)values(?,?,?)";
 			break;
 		case 2:
@@ -85,35 +86,45 @@ public class DataBaseOp {
 		return sql;
 	}
 
-	private String Save_update(int size){
+	private String Save_update(int size) {
 		String sql;
-		switch(size){
-		case 1:sql="update token_1 set frequency=?,tokens_id=? where term=?";
-		break;
-		case 2:sql="update token_2 set frequency=?,tokens_id=? where term=?";
-		break;
-		case 3:sql="update token_3 set frequency=?,tokens_id=? where term=?";
-		break;
-		case 4:sql="update token_4 set frequency=?,tokens_id=? where term=?";
-		break;
-		case 5:sql="update token_5 set frequency=?,tokens_id=? where term=?";
-		break;
-		case 6:sql="update token_6 set frequency=?,tokens_id=? where term=?";
-		break;
-		case 7:sql="update token_7 set frequency=?,tokens_id=? where term=?";
-		break;
-		case 8:sql="update token_8 set frequency=? ,tokens_id=? where term=?";
-		break;
+		switch (size) {
+		case 1:
+			sql = "update token_1 set frequency=?,tokens_id=? where term=?";
+			break;
+		case 2:
+			sql = "update token_2 set frequency=?,tokens_id=? where term=?";
+			break;
+		case 3:
+			sql = "update token_3 set frequency=?,tokens_id=? where term=?";
+			break;
+		case 4:
+			sql = "update token_4 set frequency=?,tokens_id=? where term=?";
+			break;
+		case 5:
+			sql = "update token_5 set frequency=?,tokens_id=? where term=?";
+			break;
+		case 6:
+			sql = "update token_6 set frequency=?,tokens_id=? where term=?";
+			break;
+		case 7:
+			sql = "update token_7 set frequency=?,tokens_id=? where term=?";
+			break;
+		case 8:
+			sql = "update token_8 set frequency=? ,tokens_id=? where term=?";
+			break;
 		default:
-			sql="update token set frequency=? ,tokens_id=? where term=?";
+			sql = "update token set frequency=? ,tokens_id=? where term=?";
 		}
 		return sql;
 	}
+
 	private String PrepareProcessor(String str) {
 		String s = str.replaceAll("'", "##");
 		return s;
 	}
-	//合并文件的策略,每1024个文件进行合并排序一次,剩下的分多种情况处理
+
+	// 合并文件的策略,每1024个文件进行合并排序一次,剩下的分多种情况处理
 	private LinkedList<Integer> getPart(int sum) {
 		LinkedList<Integer> count = new LinkedList<Integer>();
 		int n = sum / 1024;
@@ -146,17 +157,18 @@ public class DataBaseOp {
 		}
 		return count;
 	}
-//启动数据库进行一批次的写入
+
+	// 启动数据库进行一批次的写入
 	public void DataBaseSave(String dirpath, boolean isQuery, int count)
 			throws Exception, SQLException {
-		//连接数据库
+		// 连接数据库
 		Connection con = Connect.getConnection(
 				"jdbc:mysql://localhost:3306/niubaisui", "root", "niubaisui",
 				Connect.DATABASE_TYPE_MYSQL);
-		//排序
+		// 排序
 		IndexDataBase database = new IndexDataBase(dirpath);
 		database.setCount(count);
-		long sortid=id;
+		long sortid = id;
 		database.Sort(sortid);
 		int filenum = database.getFile_Number();
 		System.out.println(filenum);
@@ -168,7 +180,7 @@ public class DataBaseOp {
 			PreparedStatement stmt = con.prepareStatement(SavePage_sql());
 			DateFormat format = DateFormat.getDateTimeInstance();
 			String date = format.format(Calendar.getInstance().getTime());
-			Page page = new Page(id);			
+			Page page = new Page(id);
 			id++;
 			System.out.println("正在写第" + id + "个文件");
 			System.out.println(page.getID());
@@ -189,7 +201,7 @@ public class DataBaseOp {
 			Field field = iterator_field.next();
 			stmt.setLong(1, field.getID());
 			stmt.setInt(2, field.getPriority());
-			//序列化
+			// 序列化
 			ByteArrayInputStream bin = new ByteArrayInputStream(field.getText()
 					.getBytes());
 			InputStreamReader reader = new InputStreamReader(bin, "gb2312");
@@ -205,7 +217,7 @@ public class DataBaseOp {
 		LinkedList<Index_Structure> indexs = database.getIndexs();
 		Iterator<Index_Structure> iterator_indexs = indexs.iterator();
 		// 迭代索引
-		
+
 		while (iterator_indexs.hasNext()) {
 			Index_Structure index = iterator_indexs.next();
 			// 序列化tokes_id
@@ -223,55 +235,53 @@ public class DataBaseOp {
 				Iterator<Long> iterator_list = index.Iterator();
 				int frequency = updated_index.getFrequency();
 				while (iterator_list.hasNext()) {
-					Long id=iterator_list.next();
+					Long id = iterator_list.next();
 					updated_list.addLast(id);
 					frequency++;
 				}
-				//进行序列化
+				// 进行序列化
 				updated_index.setFrequency(frequency);
 				ByteArrayOutputStream selected_bout = new ByteArrayOutputStream();
 				ObjectOutputStream selected_out = new ObjectOutputStream(
 						selected_bout);
 				selected_out.writeObject(updated_list);
-				
+
 				PreparedStatement stmt = con
 						.prepareStatement(Save_update(unicode.length));
-				//写占位符的变量
-				String term=null;
-				//长度超过最大值,截断
-				if(index.getTerm().length()>250){
-					term=updated_index.getTerm().substring(0,254);
-				}
-				else{
-					term=updated_index.getTerm();
+				// 写占位符的变量
+				String term = null;
+				// 长度超过最大值,截断
+				if (index.getTerm().length() > 250) {
+					term = updated_index.getTerm().substring(0, 254);
+				} else {
+					term = updated_index.getTerm();
 				}
 				stmt.setInt(1, updated_index.getFrequency());
 				ByteArrayInputStream updated_bin = new ByteArrayInputStream(
 						selected_bout.toByteArray());
-				
+
 				stmt.setAsciiStream(2, updated_bin);
 				stmt.setString(3, term);
 				System.out.println("正在更新Token");
 				System.out.println(Save_update(term.length()));
 				stmt.execute();
 			}
-			//进行插入操作
+			// 进行插入操作
 			else {
 				PreparedStatement stmt = con.prepareStatement(sql);
-				//写占位符的变量
-				String term=null;
-				//长度超过最大值,截断
-				if(index.getTerm().length()>250){
-					term=index.getTerm().substring(0,254);
-				}
-				else{
-					term=index.getTerm();
+				// 写占位符的变量
+				String term = null;
+				// 长度超过最大值,截断
+				if (index.getTerm().length() > 250) {
+					term = index.getTerm().substring(0, 254);
+				} else {
+					term = index.getTerm();
 				}
 				stmt.setInt(1, index.getFrequency());
-				stmt.setString(2,term);
+				stmt.setString(2, term);
 				ByteArrayInputStream bin = new ByteArrayInputStream(
 						bout.toByteArray());
-				
+
 				stmt.setAsciiStream(3, bin);
 				System.out.println("正在写Token");
 				System.out.println(sql);
@@ -280,38 +290,35 @@ public class DataBaseOp {
 		}
 		con.close();
 	}
-//将索引写入数据库中
+
+	// 将索引写入数据库中
 	public void Save(String dirpath) throws Exception, SQLException {
-		boolean isFirst = true;//count中存放的是写的遍数,不是该写那个,count中的第一个特殊,用这个进行标记
-		boolean isQuery = true;//第一次写时,直接写,不进行查询
+		boolean isFirst = true;// count中存放的是写的遍数,不是该写那个,count中的第一个特殊,用这个进行标记
+		boolean isQuery = true;// 第一次写时,直接写,不进行查询
 		File f = new File(dirpath);
 		int filesum = f.list().length;
-		LinkedList<Integer> count = getPart(filesum);//合并排序的策略
+		LinkedList<Integer> count = getPart(filesum);// 合并排序的策略
 		while (!count.isEmpty()) {
 			int n = count.pollFirst();
-			//写特殊的这个,写完之后设置为false
+			// 写特殊的这个,写完之后设置为false
 			if (isFirst) {
-				for (; n>0; n--) {
-					this.DataBaseSave(dirpath, isQuery,10);
+				for (; n > 0; n--) {
+					this.DataBaseSave(dirpath, isQuery, 10);
 					isQuery = true;
 				}
 				isFirst = false;
 			} else {
-				if(n==512){
-					this.DataBaseSave(dirpath, isQuery,9);
-				}
-				else if(n==256){
-					this.DataBaseSave(dirpath, isQuery,8);
-				}
-				else if(n==128){
-					this.DataBaseSave(dirpath, isQuery,7);
-				}
-				else if(n==64){
-					this.DataBaseSave(dirpath, isQuery,6);
-				}
-				else{
-					for(;n>0;n--){
-						this.DataBaseSave(dirpath, isQuery,0);
+				if (n == 512) {
+					this.DataBaseSave(dirpath, isQuery, 9);
+				} else if (n == 256) {
+					this.DataBaseSave(dirpath, isQuery, 8);
+				} else if (n == 128) {
+					this.DataBaseSave(dirpath, isQuery, 7);
+				} else if (n == 64) {
+					this.DataBaseSave(dirpath, isQuery, 6);
+				} else {
+					for (; n > 0; n--) {
+						this.DataBaseSave(dirpath, isQuery, 0);
 					}
 				}
 			}

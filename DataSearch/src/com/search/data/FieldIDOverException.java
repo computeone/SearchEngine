@@ -1,6 +1,6 @@
 package com.search.data;
 
-public class FieldIDOverException extends Exception{
+public class FieldIDOverException extends Exception {
 
 	/**
 	 * 
