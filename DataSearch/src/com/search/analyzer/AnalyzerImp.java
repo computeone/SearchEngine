@@ -21,6 +21,10 @@ public class AnalyzerImp implements Analyzer {
 	private String charset = "gbk";
 	private long id;// field的ID号
 
+	public AnalyzerImp(String content,boolean useSmart){
+		this.content=content;
+		this.useSmart=useSmart;
+	}
 	public AnalyzerImp(String content, boolean useSmart, long id)
 			throws IOException {
 		ByteArrayInputStream in = new ByteArrayInputStream(content.getBytes());
@@ -34,6 +38,7 @@ public class AnalyzerImp implements Analyzer {
 		this.id = id;
 	}
 
+	
 	public AnalyzerImp(File file, boolean useSmart, long id) throws IOException {
 		this.useSmart = useSmart;
 		this.id = id;
@@ -47,6 +52,24 @@ public class AnalyzerImp implements Analyzer {
 		System.out.println(content);
 	}
 
+	public String[] _analyzer() throws IOException{
+		ArrayList<String> list = new ArrayList<String>();
+		StringReader reader = new StringReader(content);
+		IKSegmenter analyzer = new IKSegmenter(reader, useSmart);
+		Lexeme lex = analyzer.next();
+		while (lex != null) {
+			list.add(lex.getLexemeText());
+			lex = analyzer.next();
+		}
+		String[] str = new String[list.size()];
+		Iterator<String> iterator = list.iterator();
+		int i = 0;
+		while (iterator.hasNext()) {
+			str[i] = new String(iterator.next());
+			i++;
+		}
+		return str;
+	}
 	// 分词主要的函数，将分词的结果以Token数据的形式返回
 	public Token[] analyzer() throws Exception {
 		ArrayList<String> list = new ArrayList<String>();
@@ -92,9 +115,13 @@ public class AnalyzerImp implements Analyzer {
 	private int getTokenSize(Token token) {
 		return token.getTerm().length();
 	}
-
-	public static void main(String[] args) throws Exception {
-
+	public static void main(String[] args) throws Exception{
+		String str="学校对各二级学院科研秘..[图]";
+		AnalyzerImp analyzer=new AnalyzerImp(str,true);
+		String[] s=analyzer._analyzer();
+		for(String s1:s){
+			System.out.println(s1);
+		}
 	}
 
 }

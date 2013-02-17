@@ -1,9 +1,6 @@
 package com.search.data;
 
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 //ID为64位的long型整数Page中的24位用来表示可索引的文档的最大数量，20位用来表示文档中的最大行数，
 //20位表示一行中的词条的最大数量
 

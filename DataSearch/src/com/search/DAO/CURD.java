@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -17,9 +18,7 @@ public class CURD {
 	// 对特定的词进行关键字查询
 	public Index_Structure selectIndex(String term) throws Exception,
 			SQLException {
-		Connection con = Connect.getConnection(
-				"jdbc:mysql://localhost:3306/niubaisui", "root", "niubaisui",
-				Connect.DATABASE_TYPE_MYSQL);
+		Connection con = Connect.getConnection();
 		String sql;
 		Index_Structure index = new Index_Structure(term);
 		byte[] b = term.getBytes();
@@ -74,9 +73,7 @@ public class CURD {
 	// 查询得到Field
 	public String[] selectField(LinkedList<Long> id) throws Exception,
 			SQLException {
-		Connection con = Connect.getConnection(
-				"jdbc:mysql://localhost:3306/niubaisui", "root", "niubaisui",
-				Connect.DATABASE_TYPE_MYSQL);
+		Connection con = Connect.getConnection();
 		Statement stmt = con.createStatement();
 		Iterator<Long> iterator = id.iterator();
 		String[] str = new String[id.size()];
@@ -96,11 +93,9 @@ public class CURD {
 
 	// 查询得到page
 	public String selectPage(long id) throws Exception, SQLException {
-		Connection con = Connect.getConnection(
-				"jdbc:mysql://localhost:3306/niubaisui", "root", "niubaisui",
-				Connect.DATABASE_TYPE_MYSQL);
+		Connection con = Connect.getConnection();
 		Statement stmt = con.createStatement();
-		String sql = "select content  from document where id='" + id + "'";
+		String sql = "select content from document where id='" + id + "'";
 		ResultSet resultset = stmt.executeQuery(sql);
 		String content = resultset.getString("content");
 		con.close();
@@ -109,7 +104,19 @@ public class CURD {
 
 	public static void main(String[] args) throws SQLException, Exception {
 		CURD curd = new CURD();
-		Index_Structure index = curd.selectIndex("charset");
+		Index_Structure index = curd.selectIndex("学院");
+		LinkedList<Long> test1=index.getTokens_id();
+		long[] test=new long[test1.size()];
+		for(int i=0;i<test1.size();i++){
+			test[i]=test1.get(i);
+		}
+		Arrays.sort(test);
+		for(int i=0;i<test.length;i++){
+			if(test[i]!=test1.get(i)){
+				System.out.println("false");
+			}
+		}
+//		System.out.println(index.getTokens_id().size());
 		if (index == null) {
 			System.out.println("null");
 		} else {

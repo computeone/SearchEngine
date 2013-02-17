@@ -9,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
 import com.search.analyzer.AnalyzerImp;
 import com.search.data.Field;
@@ -21,7 +23,7 @@ public class IndexWriter {
 	private String str;
 	private Page page;
 	private Field[] field;
-	private Token[][] token;
+	private ArrayList<LinkedList<Token>> token;
 	private String charset = "gb2312";
 	private String dirpath;
 	private long id;
@@ -84,7 +86,7 @@ public class IndexWriter {
 		return field;
 	}
 
-	public Token[][] getToken() {
+	public ArrayList<LinkedList<Token>> getToken() {
 		return token;
 	}
 
@@ -111,11 +113,12 @@ public class IndexWriter {
 
 	//
 	private void writeToken() throws Exception {
-		token = new Token[field.length][];
+		token =new ArrayList<LinkedList<Token>>(field.length);
 		for (int i = 0; i < field.length; i++) {
 			AnalyzerImp analyzer = new AnalyzerImp(field[i].getText(), true,
 					field[i].getID());
-			token[i] = analyzer.analyzer();
+			analyzer.analyzer();
+			token.set(i,analyzer.getTokens());
 		}
 	}
 
@@ -148,18 +151,18 @@ public class IndexWriter {
 	// 将token写入到文件中
 	public void writeToken_to_file() throws IOException {
 		IDhandler idhandler = new IDhandler(page.getID());
-		for (int i = 0; i < token.length; i++) {
+		for (int i = 0; i < token.size(); i++) {
 			IDhandler field_idhandler = new IDhandler(field[i].getID());
 			long field_id = field_idhandler.getField_id();
-			for (int j = 0; j < token[i].length; j++) {
-				idhandler.setID(token[i][j].getID());
+			for (int j = 0; j < token.get(i).size(); j++) {
+				idhandler.setID(token.get(i).get(j).getID());
 				long token_id = idhandler.getToken_id();
 				File file = new File(dirpath, String.valueOf(field_id) + "_"
 						+ String.valueOf(token_id) + ".token");// 将token写到dirpath目录下以token为后缀的文件中
 				FileOutputStream out = new FileOutputStream(file);
-				out.write(String.valueOf(token[i][j].getID()).getBytes());
+				out.write(String.valueOf(token.get(i).get(j).getID()).getBytes());
 				out.write('\n');
-				out.write(token[i][j].getTerm().getBytes());
+				out.write(token.get(i).get(j).getTerm().getBytes());
 			}
 		}
 	}
@@ -174,27 +177,5 @@ public class IndexWriter {
 
 	public void writerToken_to_database() {
 
-	}
-
-	public static void main(String[] args) throws Exception {
-		File file = new File("e:\\datafile/datafile1");
-		IndexWriter indexwriter = new IndexWriter(file, 1);
-		indexwriter.writer();
-		Field[] field = indexwriter.field;
-		for (int i = 0; i < field.length; i++) {
-			System.out.println(field[i].getID() + "   " + field[i].getText());
-		}
-		indexwriter.writeToken();
-		for (int i = 0; i < indexwriter.token.length; i++) {
-			TokenSort.Sort(indexwriter.token[i]);
-			for (int j = 0; j < indexwriter.token[i].length; j++) {
-				System.out.println(indexwriter.token[i][j].getID() + "   "
-						+ indexwriter.token[i][j].getTerm());
-			}
-		}
-		indexwriter.setPath("e:\\search");
-		indexwriter.writePage_to_file();
-		indexwriter.writeField_to_file();
-		indexwriter.writeToken_to_file();
 	}
 }

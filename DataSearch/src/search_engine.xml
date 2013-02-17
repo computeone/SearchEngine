@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<search_engine>
+    <spider>
+        <url>
+            <unvisitedurl class=""></unvisitedurl>
+            <visitedurl class=""></visitedurl>
+        </url>
+        <documentfilters  type="">
+            <htmlfilter class=""></htmlfilter>
+            <excelfilter class=""></excelfilter>
+            <pdffilter class=""></pdffilter>
+            <txtfilter class=""></txtfilter>
+        </documentfilters>
+  
+    </spider>
+    <search>
+        <database>
+            <url></url>
+            <user></user>
+            <password></password>
+        </database>
+    </search>
+</search_engine>

@@ -1,59 +1,76 @@
 package com.search.DAO;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 import com.search.data.Field;
-import com.search.data.IDhandler;
-import com.search.data.Page;
-import com.search.data.Token;
 import com.search.index.IndexDataBase;
-import com.search.index.IndexWriter;
 import com.search.index.Index_Structure;
 
 /*
  * 
  */
 public class DataBaseOp {
-	private static int id = 1;
+	private static LinkedList<Field> fields=new LinkedList<Field>();
+	private static LinkedList<Index_Structure> indexs=new LinkedList<Index_Structure>();
+	private static LinkedList<String> files=new LinkedList<String>();
 
-	public String SavePage_sql() throws Exception, SQLException {
+	public synchronized static String SavePage_sql() throws Exception, SQLException {
 		String sql = "insert into document(ID,CREATE_DATE,CONTENT)values (?,?,?)";
 		return sql;
 	}
 
+	public synchronized static Field getField(){
+		if(!fields.isEmpty()){
+			return fields.pollFirst();
+		}
+		else{
+			return null;
+		}
+		
+	}
+	public synchronized static Index_Structure getIndex_Structure(){
+		if(!indexs.isEmpty()){
+			return indexs.pollFirst();
+		}
+		else{
+			return null;
+		}
+	}
+	public synchronized static String getDocument(){
+		if(!files.isEmpty()){
+			return files.pollFirst();
+		}
+		else{
+			return null;
+		}
+	}
+	public synchronized static String getString(){
+		return null;
+	}
+	private synchronized boolean files_isEmpty(){
+		return files.isEmpty();
+	}
+	private synchronized boolean fields_isEmpty(){
+		return fields.isEmpty();
+	}
+	private synchronized boolean indexs_isEmpty(){
+		return indexs.isEmpty();
+	}
 	public void write() throws Exception {
 
 	}
 
-	public String SaveField_sql() throws Exception, SQLException {
+	public synchronized static String SaveField_sql() throws Exception, SQLException {
 		String sql = "insert into field(ID,PRIORITY,CONTENT)values" + "(?,?,?)";
 		return sql;
 	}
 
-	public String SaveToken_sql(int size) throws Exception, SQLException {
+	public synchronized static String SaveToken_sql(int size) throws Exception, SQLException {
 		String sql;
 		switch (size) {
 		case 1:
@@ -86,7 +103,7 @@ public class DataBaseOp {
 		return sql;
 	}
 
-	private String Save_update(int size) {
+	public synchronized static String Save_update(int size) {
 		String sql;
 		switch (size) {
 		case 1:
@@ -118,12 +135,20 @@ public class DataBaseOp {
 		}
 		return sql;
 	}
-
-	private String PrepareProcessor(String str) {
-		String s = str.replaceAll("'", "##");
-		return s;
+	//对tokens_id进行排序
+	public synchronized static LinkedList<Long> Sort(LinkedList<Long> list){
+		LinkedList<Long> linkedlist=new LinkedList<Long>();
+		long[] array=new long[list.size()];
+		Iterator<Long> iterator_list=list.iterator();
+		for(int i=0;i<list.size();i++){
+			array[i]=iterator_list.next();
+		}
+		Arrays.sort(array);
+		for(long l:array){
+			linkedlist.addLast(l);
+		}
+		return linkedlist;
 	}
-
 	// 合并文件的策略,每1024个文件进行合并排序一次,剩下的分多种情况处理
 	private LinkedList<Integer> getPart(int sum) {
 		LinkedList<Integer> count = new LinkedList<Integer>();
@@ -159,143 +184,50 @@ public class DataBaseOp {
 	}
 
 	// 启动数据库进行一批次的写入
-	public void DataBaseSave(String dirpath, boolean isQuery, int count)
+	public void DataBaseSave(String dirpath, int count,int start)
 			throws Exception, SQLException {
-		// 连接数据库
-		Connection con = Connect.getConnection(
-				"jdbc:mysql://localhost:3306/niubaisui", "root", "niubaisui",
-				Connect.DATABASE_TYPE_MYSQL);
 		// 排序
 		IndexDataBase database = new IndexDataBase(dirpath);
 		database.setCount(count);
-		long sortid = id;
+		long sortid = start;
 		database.Sort(sortid);
-		int filenum = database.getFile_Number();
+		int filenum = database.getDocument_Number();
 		System.out.println(filenum);
+		int thread_num=25;
+		if(filenum<64){
+			thread_num=1;
+		}
 		// 写page
 		for (int i = 1; i <= filenum; i++) {
-			File file = new File(dirpath, "datafile" + id);
-			System.out.println(file.getName());
-			FileReader reader = new FileReader(file);
-			PreparedStatement stmt = con.prepareStatement(SavePage_sql());
-			DateFormat format = DateFormat.getDateTimeInstance();
-			String date = format.format(Calendar.getInstance().getTime());
-			Page page = new Page(id);
-			id++;
-			System.out.println("正在写第" + id + "个文件");
-			System.out.println(page.getID());
-			System.out.println(date);
-			stmt.setLong(1, page.getID());
-			stmt.setTimestamp(2, new Timestamp(Calendar.getInstance()
-					.getTimeInMillis()));
-			stmt.setCharacterStream(3, reader);
-			stmt.execute();
+			files.addLast("datafile"+start);
+			start++;
+		}
+		for(int i=0;i<thread_num;i++){
+			DocumentThread thread=new DocumentThread(dirpath,DataBaseOp.getDocument());
+			thread.start();
 		}
 
 		// 写Field
-		LinkedList<Field> list = database.getField();
-		Iterator<Field> iterator_field = list.iterator();
-		while (iterator_field.hasNext()) {
-			String sql = SaveField_sql();
-			PreparedStatement stmt = con.prepareStatement(sql);
-			Field field = iterator_field.next();
-			stmt.setLong(1, field.getID());
-			stmt.setInt(2, field.getPriority());
-			// 序列化
-			ByteArrayInputStream bin = new ByteArrayInputStream(field.getText()
-					.getBytes());
-			InputStreamReader reader = new InputStreamReader(bin, "gb2312");
-			stmt.setCharacterStream(3, reader);
-			System.out.println("正在写Field");
-			System.out.println(sql);
-			IDhandler idhandler = new IDhandler(field.getID());
-			System.out.println(idhandler.getField_id() >> 20);
-			System.out.println(field.getText());
-			stmt.execute();
+		fields = database.getField();
+		for(int i=0;i<thread_num;i++){
+			FieldThread thread=new FieldThread(DataBaseOp.getField());
+			thread.start();
 		}
+		
 		// 写索引
-		LinkedList<Index_Structure> indexs = database.getIndexs();
-		Iterator<Index_Structure> iterator_indexs = indexs.iterator();
-		// 迭代索引
-
-		while (iterator_indexs.hasNext()) {
-			Index_Structure index = iterator_indexs.next();
-			// 序列化tokes_id
-			ByteArrayOutputStream bout = new ByteArrayOutputStream();
-			ObjectOutputStream out = new ObjectOutputStream(bout);
-			out.writeObject(index.getTokens_id());
-			// 设置词条的unicode代码
-			byte[] unicode = index.getTerm().getBytes();
-			String sql = this.SaveToken_sql(unicode.length);
-			CURD curd = new CURD();
-			Index_Structure updated_index = curd.selectIndex(index.getTerm());
-			// 执行更新
-			if (isQuery && updated_index != null) {
-				LinkedList<Long> updated_list = updated_index.getTokens_id();
-				Iterator<Long> iterator_list = index.Iterator();
-				int frequency = updated_index.getFrequency();
-				while (iterator_list.hasNext()) {
-					Long id = iterator_list.next();
-					updated_list.addLast(id);
-					frequency++;
-				}
-				// 进行序列化
-				updated_index.setFrequency(frequency);
-				ByteArrayOutputStream selected_bout = new ByteArrayOutputStream();
-				ObjectOutputStream selected_out = new ObjectOutputStream(
-						selected_bout);
-				selected_out.writeObject(updated_list);
-
-				PreparedStatement stmt = con
-						.prepareStatement(Save_update(unicode.length));
-				// 写占位符的变量
-				String term = null;
-				// 长度超过最大值,截断
-				if (index.getTerm().length() > 250) {
-					term = updated_index.getTerm().substring(0, 254);
-				} else {
-					term = updated_index.getTerm();
-				}
-				stmt.setInt(1, updated_index.getFrequency());
-				ByteArrayInputStream updated_bin = new ByteArrayInputStream(
-						selected_bout.toByteArray());
-
-				stmt.setAsciiStream(2, updated_bin);
-				stmt.setString(3, term);
-				System.out.println("正在更新Token");
-				System.out.println(Save_update(term.length()));
-				stmt.execute();
-			}
-			// 进行插入操作
-			else {
-				PreparedStatement stmt = con.prepareStatement(sql);
-				// 写占位符的变量
-				String term = null;
-				// 长度超过最大值,截断
-				if (index.getTerm().length() > 250) {
-					term = index.getTerm().substring(0, 254);
-				} else {
-					term = index.getTerm();
-				}
-				stmt.setInt(1, index.getFrequency());
-				stmt.setString(2, term);
-				ByteArrayInputStream bin = new ByteArrayInputStream(
-						bout.toByteArray());
-
-				stmt.setAsciiStream(3, bin);
-				System.out.println("正在写Token");
-				System.out.println(sql);
-				stmt.execute();
-			}
-		}
-		con.close();
+		 indexs= database.getIndexs();
+		 for(int i=0;i<thread_num;i++){
+			 IndexThread thread=new IndexThread(DataBaseOp.getIndex_Structure());
+			 thread.start();
+		 }
 	}
 
-	// 将索引写入数据库中
+	// 单线程将索引写入数据库中
 	public void Save(String dirpath) throws Exception, SQLException {
 		boolean isFirst = true;// count中存放的是写的遍数,不是该写那个,count中的第一个特殊,用这个进行标记
-		boolean isQuery = true;// 第一次写时,直接写,不进行查询
 		File f = new File(dirpath);
+		int num=0;
+		int id=1;
 		int filesum = f.list().length;
 		LinkedList<Integer> count = getPart(filesum);// 合并排序的策略
 		while (!count.isEmpty()) {
@@ -303,28 +235,113 @@ public class DataBaseOp {
 			// 写特殊的这个,写完之后设置为false
 			if (isFirst) {
 				for (; n > 0; n--) {
-					this.DataBaseSave(dirpath, isQuery, 10);
-					isQuery = true;
+					this.DataBaseSave(dirpath, 10,num*1024+1);
+					while(true){
+						if(this.files_isEmpty()&&this.fields_isEmpty()
+							&&this.indexs_isEmpty()){
+							break;
+						}
+					}
+					num++;
 				}
+				id=num*1024+1;
 				isFirst = false;
 			} else {
 				if (n == 512) {
-					this.DataBaseSave(dirpath, isQuery, 9);
+					this.DataBaseSave(dirpath, 9,id);
+					while(true){
+						if(this.files_isEmpty()&&this.fields_isEmpty()
+							&&this.indexs_isEmpty()){
+							break;
+						}	
+					}
+					id=id+512;
 				} else if (n == 256) {
-					this.DataBaseSave(dirpath, isQuery, 8);
+					this.DataBaseSave(dirpath,  8,id);
+					while(true){
+						if(this.files_isEmpty()&&this.fields_isEmpty()
+							&&this.indexs_isEmpty()){
+							break;
+						}				
+					}
+					id=id+256;
 				} else if (n == 128) {
-					this.DataBaseSave(dirpath, isQuery, 7);
+					this.DataBaseSave(dirpath,  7,id);
+					while(true){
+						if(this.files_isEmpty()&&this.fields_isEmpty()
+							&&this.indexs_isEmpty()){
+							break;
+						}				
+					}
+					id=id+128;
 				} else if (n == 64) {
-					this.DataBaseSave(dirpath, isQuery, 6);
+					this.DataBaseSave(dirpath,  6,id);
+					while(true){
+						if(this.files_isEmpty()&&this.fields_isEmpty()
+							&&this.indexs_isEmpty()){
+							break;
+						}				
+					}
+					id=id+64;
 				} else {
 					for (; n > 0; n--) {
-						this.DataBaseSave(dirpath, isQuery, 0);
+						this.DataBaseSave(dirpath, 0,id);
+						while(true){
+							if(this.files_isEmpty()&&this.fields_isEmpty()
+								&&this.indexs_isEmpty()){
+								break;
+							}				
+						}
+						id++;
 					}
 				}
 			}
 		}
 	}
 
+	//多线程将数据写入数据库中
+	public void _Save(String dirpath) throws Exception, Exception{
+		boolean isFirst = true;// count中存放的是写的遍数,不是该写那个,count中的第一个特殊,用这个进行标记
+		File f = new File(dirpath);
+		int num=0;
+		int id=1;
+		int filesum = f.list().length;
+		LinkedList<Integer> count = getPart(filesum);// 合并排序的策略
+		while (!count.isEmpty()) {
+			int n = count.pollFirst();
+			
+			// 写特殊的这个,写完之后设置为false
+			if (isFirst) {
+			    	
+				for(int i=0;i<n;i++){
+					new DAOThread(dirpath,10,num*1024+1).start();
+					System.out.println("thread running");
+					num++;
+				}	
+				id=num*1024+1;
+				isFirst = false;
+			} else {
+				if (n == 512) {
+					new DAOThread(dirpath,9,id).start();
+					id=id+512;
+				} else if (n == 256) {
+					new DAOThread(dirpath,8,id).start();
+					id=id+256;
+				} else if (n == 128) {
+					new DAOThread(dirpath,7,id).start();
+					id=id+128;
+				} else if (n == 64) {
+					new DAOThread(dirpath,6,id).start();
+					id=id+64;
+				} else {
+					for (; n > 0; n--) {
+						this.DataBaseSave(dirpath,0,id);
+						id++;
+					}
+				}
+			}
+		}
+	}
 	// 保存index
 	public static void main(String[] args) throws SQLException, Exception {
 		DataBaseOp database = new DataBaseOp();
@@ -336,5 +353,6 @@ public class DataBaseOp {
 			System.out.println(e.getMessage());
 			System.out.println(e.getSQLState());
 		}
+		
 	}
 }

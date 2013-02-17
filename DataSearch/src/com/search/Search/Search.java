@@ -1,77 +1,221 @@
 package com.search.Search;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.search.DAO.CURD;
-import com.search.DAO.Connect;
-import com.search.data.Field;
+import com.search.analyzer.AnalyzerImp;
 import com.search.data.IDhandler;
-
 public class Search {
-
-	public SearchResult[] search(String str) throws SQLException, Exception {
-		CURD curd = new CURD();
-		Connection con = Connect.getConnection(
-				"jdbc:mysql://localhost:3306/niubaisui", "root", "niubaisui",
-				Connect.DATABASE_TYPE_MYSQL);
-		Statement stmt = con.createStatement();
-		LinkedList<Long> id_list = curd.selectIndex(str).getTokens_id();
-		SearchResult[] searchresult = new SearchResult[id_list.size()];
-		Iterator<Long> iterator_id = id_list.iterator();
-		int i = -1;
-		while (iterator_id.hasNext()) {
-			SearchResult result;
-			Long id = iterator_id.next();
-			IDhandler idhandler = new IDhandler(id);
-			ResultSet resultset = stmt.executeQuery("select priority,"
-					+ "content from field where id='" + idhandler.Field_id()
-					+ "'");
-			Field field = null;
-			while (resultset.next()) {
-				String text = resultset.getString("content");
-				int priority = resultset.getInt("priority");
-				field = new Field(text, idhandler.getPage_id(),
-						idhandler.getField_id() >> 20);
-				field.setPriority(priority);
-			}
-			Statement stmt_page = con.createStatement();
-			ResultSet resultset_page = stmt_page
-					.executeQuery("select content from document where "
-							+ "id='" + idhandler.getPage_id() + "'");
-			String url = null;
-			while (resultset_page.next()) {
-				String content = resultset_page.getString("content");
-				String[] split = content.split("\n");
-				int num = (int) ((idhandler.getField_id() >> 20) - 1);
-				// System.out.println(num);
-				url = split[num - 1];
-			}
-			result = new SearchResult(field, url);
-			searchresult[++i] = result;
-			// System.out.println("pageid:"+(idhandler.getPage_id()>>40));
-			// System.out.println("field:"+(idhandler.getField_id()>>20));
-			// System.out.println("token:"+idhandler.getToken_id());
-
+	private static LinkedList<Long> id_list=new LinkedList<Long>();
+	private static LinkedList<SearchResult> searchresult=new LinkedList<SearchResult>();
+	
+	public synchronized static Long getField_ID(){
+		if(!id_list.isEmpty()){
+			return id_list.pollFirst();
 		}
-		con.close();
-		return searchresult;
+		else{
+			return null;
+		}
 	}
+	public synchronized static boolean isEmpty(){
+		return id_list.isEmpty();
+	}
+	public synchronized static void addSearchResult(SearchResult result){
+		searchresult.addLast(result);
+	}
+	public LinkedList<SearchResult> Sort_ID(LinkedList<SearchResult> result){
+		SearchResult[] search=new SearchResult[result.size()];
+		int n=-1;
+		while(!result.isEmpty()){
+			search[++n]=result.pollFirst();
+		}
+		Arrays.sort(search,new SearchResultCompare_ID());
+		for(int i=0;i<search.length;i++){
+			result.addLast(search[i]);
+		}
+		return result;
+	}
+	public LinkedList<SearchResult> Sort_Priority(LinkedList<SearchResult> result){
+		SearchResult[] search=new SearchResult[result.size()];
+		int n=-1;
+		while(!result.isEmpty()){
+			search[++n]=result.pollFirst();
+		}
+		Arrays.sort(search,new SearchResultCompare_Priority());
+		for(int i=0;i<search.length;i++){
+			result.addLast(search[i]);
+		}
+		return result;
+	}
+	public LinkedList<SearchResult> search(String term)  {
+		CURD curd = new CURD();
+		try{
+		id_list = curd.selectIndex(term).getTokens_id();
+		}catch(Exception e){
+			System.out.println();
+		}
+		if(id_list==null)return null;
+		
+		int threadnum=10;
+		if(id_list.size()<10){
+			threadnum=id_list.size();
+		}
+		
+		for(int i=0;i<threadnum;i++){
+			QueryResultThread thread=new QueryResultThread();
+			thread.start();
+		}
+		LinkedList<SearchResult> search_result=new LinkedList<SearchResult>();
+		while(!Search.isEmpty());
+				
+		FileOutputStream out=this.writefile();
+		while(!Search.searchresult.isEmpty()){
+			SearchResult s=Search.searchresult.pollFirst();
+			s.setTerm(term);
+			search_result.addLast(s);
+			IDhandler idhandler=new IDhandler(s.getID());
+//			out.write("-------------------------------------".getBytes());
+//			out.write('\n');
+//			out.write(s.getURL().getBytes());
+//			out.write('\n');
+//			out.write(s.getContent().getBytes());
+//			out.write('\n');
+//			out.write(String.valueOf(s.getPriority()).getBytes());
+//			out.write('\n');
+//			out.write("pageid:".getBytes());
+//			out.write(String.valueOf(idhandler.getPage_id()>>40).getBytes());
+//			out.write('\n');
+//			out.write("fieldid:".getBytes());
+//			out.write(String.valueOf(idhandler.getField_id()>>20).getBytes());
+//			out.write('\n');
+//			out.write("tokenid:".getBytes());
+//			out.write(String.valueOf(idhandler.getToken_id()).getBytes());
+//			out.write('\n');
+		}
+		
+		return search_result;
+	}
+	//根据命中语句设置优先级
+	public LinkedList<SearchResult> mergeSearch(String str) throws SQLException, Exception{
+		//
+		AnalyzerImp analyzer=new AnalyzerImp(str,true);
+		String[] s=analyzer._analyzer();
+		for(String s1:s){
+			System.out.println(s1);
+		}
+		//
+		ArrayList<LinkedList<SearchResult>> search_result=
+				new ArrayList<LinkedList<SearchResult>>(s.length);
 
+		for(int i=0;i<s.length;i++){
+			search_result.add(i, this.search(s[i]));
+		}
+		for(int i=1;i<s.length;i++){
+			addPrority(search_result.get(i-1),search_result.get(i));
+		}
+		LinkedList<SearchResult> result=new LinkedList<SearchResult>();
+		for(int i=0;i<search_result.size();i++){
+			Iterator<SearchResult> iterator=search_result.get(i).iterator();
+			while(iterator.hasNext()){
+				result.addLast(iterator.next());
+			}
+		}
+		result=Sort_Priority(result);
+		return result;
+	}
+	//根据词之间的匹配程度进行设置优先级
+	public void addPrority(LinkedList<SearchResult> result1,LinkedList<SearchResult> result2) throws IOException{
+		if(result1.isEmpty()||result2.isEmpty()){
+			return;
+		}
+		result2=Sort_ID(result2);
+		long[] id2=new long[result2.size()];
+		for(int i=0;i<result2.size();i++){
+			id2[i]=result2.get(i).getID();
+		}
+		//
+		File file=new File("e:\\result2");
+		FileOutputStream out=new FileOutputStream(file);
+		SearchResult[] id1=new SearchResult[result1.size()];
+		for(int i=0;i<result1.size();i++){
+			id1[i]=result1.get(i);
+		}
+		for(int i=0;i<id1.length;i++){
+			int r=Arrays.binarySearch(id2, id1[i].getID()+id1[i].getTerm().length());
+			if(r>=0){
+				int r1_priority=id1[i].getPriority();				
+				
+				int r2_priority=result2.get(r).getPriority();
+				
+				if(r1_priority>r2_priority){
+					result2.get(r).setPriority(r1_priority+5);
+				}
+				else{
+					result2.get(r).setPriority(r2_priority+5);
+				}
+				
+				result1.remove(id1[i]);
+				out.write("------------------------------".getBytes());
+				out.write('\n');
+				out.write(String.valueOf(id1[i].getID()).getBytes());
+				out.write('\n');
+				out.write(String.valueOf(result2.get(r).getID()).getBytes());
+				out.write('\n');
+			}
+		}
+		
+	}
+	public FileOutputStream writefile() {
+		FileOutputStream out=null;
+		try{
+		File file=new File("e:\\resut1");
+		out=new FileOutputStream(file);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		return out;
+	}
 	public static void main(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
 		Search search = new Search();
-		SearchResult[] result = search.search("运动会");
+		LinkedList<SearchResult> result = search.mergeSearch("校园3D巡游");
 		long end = System.currentTimeMillis();
-		System.out.println("用时为：" + (end - start) + "ms");
-		for (SearchResult s : result) {
+		System.out.println("用时为：" + (end - start) + "ms  搜索到:"+result.size()+"个结果");
+		File file=new File("e:\\result");
+		FileOutputStream out=new FileOutputStream(file);
+		IDhandler idhandler=new IDhandler(1);
+		int size=10;
+		if(result.size()<10){
+			size=result.size();
+		}
+		for(int i=0;i<size;i++){
+			SearchResult s=result.get(i);
+			System.out.println("-----------------------------");
 			System.out.println(s.getURL());
 			System.out.println(s.getContent());
 			System.out.println(s.getPriority());
+			out.write(s.getURL().getBytes());
+			out.write('\n');
+			out.write(s.getContent().getBytes());
+			out.write('\n');
+			out.write(String.valueOf(s.getPriority()).getBytes());
+			out.write('\n');
+			out.write(s.getTerm().getBytes());
+			out.write('\n');
+			idhandler.setID(s.getID());
+			out.write(String.valueOf(s.getID()).getBytes());
+			out.write('\n');
+			out.write(String.valueOf(idhandler.Field_id()).getBytes());
+			out.write('\n');
 		}
 	}
 }

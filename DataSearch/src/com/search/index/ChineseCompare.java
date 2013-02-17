@@ -6,7 +6,6 @@ import java.util.Comparator;
 public class ChineseCompare implements Comparator<Character> {
 	@Override
 	public int compare(Character c1, Character c2) {
-		// TODO Auto-generated method stub
 		char[] ch = new char[2];
 		ch[0] = c1;
 		ch[1] = c2;

@@ -6,9 +6,7 @@ import java.sql.Statement;
 
 public class DataBaseInit {
 	public void init() throws Exception, SQLException {
-		Connection con = Connect.getConnection(
-				"jdbc:mysql://localhost:3306/niubaisui", "root", "niubaisui",
-				Connect.DATABASE_TYPE_MYSQL);
+		Connection con = Connect.getConnection();
 		Statement stmt = con.createStatement();
 		stmt.execute("create table document(ID BIGINT NOT NULL PRIMARY KEY,CREATE_DATE TIMESTAMP,CONTENT TEXT);");
 		stmt.execute(" create table field( ID  BIGINT NOT NULL PRIMARY KEY,PRIORITY INT,CONTENT TEXT);");

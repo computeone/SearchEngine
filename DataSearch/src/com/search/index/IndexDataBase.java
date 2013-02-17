@@ -3,6 +3,8 @@ package com.search.index;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -12,13 +14,17 @@ import com.search.data.Token;
 
 public class IndexDataBase {
 	private LinkedList<Field> field = new LinkedList<Field>();
-	private int file_num;
+	private int document_num;
 	private int count = 10;
-	private int Max_Merge_File_Count;
+	private int Max_Merge_Document_Count;
 	private int filecount = 1;
 	private String from_dirpath;
+	private Connection connection;
 	private LinkedList<Index_Structure> indexs = new LinkedList<Index_Structure>();
 
+	public IndexDataBase(Connection connection){
+		this.connection=connection;
+	}
 	public IndexDataBase(String from_dirpath) {
 		this.from_dirpath = from_dirpath;
 	}
@@ -27,8 +33,8 @@ public class IndexDataBase {
 		return indexs;
 	}
 
-	public int getFile_Number() {
-		return file_num;
+	public int getDocument_Number() {
+		return document_num;
 	}
 
 	public LinkedList<Field> getField() {
@@ -58,12 +64,13 @@ public class IndexDataBase {
 		}
 	}
 
-	// 将二维数据转换为一维数据
-	private Token[] getToken(Token[][] token) {
+	// 将arraylist<linkedlist<token>>转化为token[]
+	private Token[] getToken(ArrayList<LinkedList<Token>> token) {
 		LinkedList<Token> tokens = new LinkedList<Token>();
-		for (int i = 0; i < token.length; i++) {
-			for (int j = 0; j < token[i].length; j++) {
-				tokens.add(token[i][j]);
+		for(LinkedList<Token> list:token){
+			Iterator<Token> iterator=list.iterator();
+			while(iterator.hasNext()){
+				tokens.addLast(iterator.next());
 			}
 		}
 		Token[] t = new Token[tokens.size()];
@@ -88,9 +95,9 @@ public class IndexDataBase {
 	public void Sort(long id) throws Exception {
 		LinkedList<LinkedList<Token>> t = new LinkedList<LinkedList<Token>>();
 		// 从文件中得到tokens
-		Max_Merge_File_Count = (int) Math.pow(2, count);
-		this.file_num = Max_Merge_File_Count;
-		for (int i = 1; i <= Max_Merge_File_Count; i++) {
+		Max_Merge_Document_Count = (int) Math.pow(2, count);
+		this.document_num = Max_Merge_Document_Count;
+		for (int i = 1; i <= Max_Merge_Document_Count; i++) {
 			File file = new File(from_dirpath, "datafile" + id);
 			IndexWriter indexwriter = new IndexWriter(file, id);
 			indexwriter.writer();
@@ -98,7 +105,7 @@ public class IndexDataBase {
 			for (Field f : indexwriter.getField()) {
 				field.add(f);
 			}
-			Token[][] token = indexwriter.getToken();
+			ArrayList<LinkedList<Token>> token = indexwriter.getToken();
 			Token[] tk = getToken(token);
 			TokenSort.Sort(tk);
 			t.addLast(getList(tk));
@@ -136,12 +143,9 @@ public class IndexDataBase {
 		Iterator<LinkedList<Token>> t_iterator = t.iterator();
 		while (t_iterator.hasNext()) {
 			Iterator<Token> iterator = t_iterator.next().iterator();
-			System.out.println("*********************************************");
 			while (iterator.hasNext()) {
 				System.out.println(iterator.next().getTerm());
 			}
-			System.out
-					.println("**********************************************");
 		}
 		return t;
 	}
@@ -196,17 +200,4 @@ public class IndexDataBase {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		IndexDataBase database = new IndexDataBase("e:\\datafile");
-		database.setCount(0);
-		database.Sort(1);
-		LinkedList<Field> field = database.field;
-		Iterator<Field> iterator = field.iterator();
-		while (iterator.hasNext()) {
-			Field f = iterator.next();
-			System.out.println(f.getText());
-			IDhandler idhandler = new IDhandler(f.getID());
-			System.out.println(idhandler.getField_id() >> 20);
-		}
-	}
 }
