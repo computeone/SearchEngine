@@ -1,6 +1,5 @@
 package com.http.control;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -10,14 +9,18 @@ import com.html.parser.DocumentParser;
 import com.html.parser.HtmlLinkFilterChain;
 import com.html.parser.HtmlParser;
 import com.http.Search.BreadthFirstTraversal;
+import com.http.Search.CrawlUrl;
 import com.http.connect.FileDownload;
 import com.http.connect.HttpConnect;
 import com.http.connect.HttpConnectPool;
 import com.http.connect.NOHttpConnectException;
-
-public class SpiderThread extends Thread {
+/*
+ * 
+ */
+public class CrawlThread extends Thread {
 	private String url;
 	private int priority;
+	private CrawlUrl crawlurl;
 	private String rootdir;
 	private Logger logger = LogManager.getLogger("SpiderThread");
 	private LinkedList<String> todoUrl;// 将要访问的url列表
@@ -26,15 +29,13 @@ public class SpiderThread extends Thread {
 		return rootdir;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-	public SpiderThread(String url, int priority) {
+	
+	public CrawlThread(CrawlUrl crawurl) {
 		super();
-		this.url = url;
-		this.rootdir = SpiderWebCentral.rootdir;
-		this.priority = priority;
+		this.rootdir = CrawlWebCentral.rootdir;
+		this.crawlurl=crawurl;
+		this.url=crawlurl.getOriUrl();
+		this.priority=crawlurl.getPriority();
 	}
 
 	public LinkedList<String> getURL() {
@@ -42,9 +43,9 @@ public class SpiderThread extends Thread {
 	}
 
 	public void run() {
-		logger.info("Task url:" + url);
+		logger.info("Task url:" + crawlurl.getOriUrl());
 		HttpConnect httpconnect = null;
-		while (url != null) {
+		while (crawlurl!= null) {
 			try {
 				logger.entry("httpconnect");
 				// 创建连接
@@ -66,41 +67,53 @@ public class SpiderThread extends Thread {
 				HttpConnectPool.releaseHttpConnect(httpconnect);
 				logger.debug("Release Connect");
 				// htmldownload.printFile();
+				
+				
 				// 将访问过的节点天骄的visited列表
-				BreadthFirstTraversal.addURLVisited(url);
+				BreadthFirstTraversal.addURLVisited(crawlurl);
+				
+				
 				// 解析html文件
 				logger.entry("HtmlParser");
 				logger.debug(htmldownload.isParser());
+				
+				
 				//判断是不是可以解析的
 				if (htmldownload.isParser()) {
 					DocumentParser htmlparser = new HtmlParser();
 					htmlparser.setUrl(url);
+					
+					
 					// 将解析出来的URL添加进todo列表
 					htmlparser
 							.registerLinkFilterChain(new HtmlLinkFilterChain());
 					todoUrl = htmlparser.parser(htmldownload.getFile(),
 							htmldownload.getEncoding());
 
-					BreadthFirstTraversal.addURLVisited(url, priority);
+					
 					logger.exit("HtmlParser");
+					
+					
 					// 迭代加入表中
 					Iterator<String> iterator = todoUrl.iterator();
 					while (iterator.hasNext()) {
 						String url = iterator.next();
-						boolean isExist=BreadthFirstTraversal.addURLVisited(url);
+						CrawlUrl temp_crawlurl=new CrawlUrl();
+						temp_crawlurl.setOriUrl(url);
+						boolean isExist=BreadthFirstTraversal.addURLVisited(temp_crawlurl);
 						//如果不在visited中，则增加到unvisitedurl
 						if(isExist){
-							BreadthFirstTraversal.addUNURLVisited(url);
+							BreadthFirstTraversal.addUNURLVisited(temp_crawlurl);
 						}
 						
 					}
 				}
 				// 取出来一个优先级最高的url，添加到visitedurl中
-				HashMap<String, Integer> map = BreadthFirstTraversal
+				CrawlUrl new_crawlurl= BreadthFirstTraversal
 						.getUNVisitedURL();
-				if (map != null) {
-					this.url = (String) map.keySet().toArray()[0];
-					this.priority = map.get(url);
+				if (new_crawlurl!=null) {
+					this.url = new_crawlurl.getOriUrl();
+					this.priority = new_crawlurl.getPriority();
 				} else {
 					this.url = null;
 				}
@@ -117,17 +130,25 @@ public class SpiderThread extends Thread {
 				}
 				//释放连接，取得新的url
 				HttpConnectPool.releaseHttpConnect(httpconnect);
-				HashMap<String, Integer> map = BreadthFirstTraversal
+				CrawlUrl crawlurl = BreadthFirstTraversal
 						.getUNVisitedURL();
-				if (map != null) {
-					url = (String) map.keySet().toArray()[0];
-					this.priority = map.get(url);
+				if (crawlurl!= null) {
+					url = crawlurl.getOriUrl();
+					this.priority = crawlurl.getPriority();
 				} else {
 					url = null;
 				}
 				logger.fatal("Connect Default! or Download default!");
 			}
 		}
+	}
+
+	public CrawlUrl getCrawlurl() {
+		return crawlurl;
+	}
+
+	public void setCrawlurl(CrawlUrl crawlurl) {
+		this.crawlurl = crawlurl;
 	}
 
 }

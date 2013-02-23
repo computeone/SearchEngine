@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 
+import com.http.Search.CrawlUrl;
+
 public class DataBaseCRUD {
 	private Connection con;
 	public DataBaseCRUD(){
@@ -15,29 +17,22 @@ public class DataBaseCRUD {
 			System.out.println("数据库打开失败");
 		}
 	}
-	public void insert_visitedURL(String url) throws Exception, SQLException {
+	public void insert_visitedURL(CrawlUrl url) throws Exception, SQLException {
 		Statement stmt = con.createStatement();
 		stmt.executeUpdate("insert into visitedurl(url,priority)values ('"
-				+ url + "',0)");
+				+ url.getOriUrl() + "',0)");
 	}
 
-	public void insert_visitedURL(String url, int priority) throws Exception,
-			SQLException {
+	public void insert_unvisitedURL(CrawlUrl url) throws Exception, SQLException {
 		Statement stmt = con.createStatement();
-		stmt.executeUpdate("insert into visitedurl(url,priority)values ('"
-				+ url + "','" + priority + "')");
-	}
-
-	public void insert_unvisitedURL(String url) throws Exception, SQLException {
-		Statement stmt = con.createStatement();
-		stmt.execute("insert into unvisitedurl(url,priority)values('" + url
+		stmt.execute("insert into unvisitedurl(url,priority)values('" + url.getOriUrl()
 				+ "',0)");
 	}
 
-	public HashMap<String, Integer> select_visitedURL(String url)
+	public CrawlUrl query_visitedURL(CrawlUrl url)
 			throws Exception, SQLException {
 		Statement stmt = con.createStatement();
-		stmt.executeQuery("select * from visitedurl where url='" + url + "'");
+		stmt.executeQuery("select * from visitedurl where url='" + url.getOriUrl() + "'");
 		ResultSet rs = stmt.getResultSet();
 		boolean isExist = rs.next();
 		if (!isExist) {
@@ -45,15 +40,16 @@ public class DataBaseCRUD {
 		}
 
 		int priority = rs.getInt("priority");
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
-		map.put(url, priority);
-		return map;
+		CrawlUrl crawlurl=new CrawlUrl();
+		crawlurl.setOriUrl(url.getOriUrl());
+		crawlurl.setPriority(priority);
+		return crawlurl;
 	}
 
-	public HashMap<String, Integer> select_unvisitedURL(String url)
+	public CrawlUrl query_unvisitedURL(CrawlUrl url)
 			throws Exception, SQLException {
 		Statement stmt = con.createStatement();
-		stmt.executeQuery("select * from unvisitedurl where url='" + url + "'");
+		stmt.executeQuery("select * from unvisitedurl where url='" + url.getOriUrl() + "'");
 		ResultSet rs = stmt.getResultSet();
 		boolean isExist = rs.next();
 		if (!isExist) {
@@ -61,12 +57,13 @@ public class DataBaseCRUD {
 		}
 
 		int priority = rs.getInt("priority");
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
-		map.put(url, priority);
-		return map;
+		CrawlUrl crawlurl=new CrawlUrl();
+		crawlurl.setOriUrl(url.getOriUrl());
+		crawlurl.setPriority(priority);
+		return crawlurl;
 	}
 
-	public HashMap<String, Integer> getURL() throws Exception, SQLException {
+	public CrawlUrl getURL() throws Exception, SQLException {
 		Statement stmt = con.createStatement();
 		ResultSet rs = stmt.executeQuery("select * from unvisitedurl "
 				+ "where priority=(select max(priority) from unvisitedurl)");
@@ -76,26 +73,27 @@ public class DataBaseCRUD {
 		} else {
 			String url = rs.getString("url");
 			int priority = rs.getInt("priority");
-			HashMap<String, Integer> map = new HashMap<String, Integer>();
-			map.put(url, priority);
+			CrawlUrl crawlurl=new CrawlUrl();
+			crawlurl.setOriUrl(url);
+			crawlurl.setPriority(priority);
 			stmt.executeUpdate("delete from unvisitedurl where url='" + url
 					+ "'");
-			return map;
+			return crawlurl;
 		}
 	}
 
-	public void updatedVisitedURL(String url, int priority) throws Exception,
+	public void updatedVisitedURL(CrawlUrl url) throws Exception,
 			SQLException {
 		Statement stmt = con.createStatement();
-		stmt.executeUpdate("update visitedurl set priority='" + priority + "'"
-				+ "  where url='" + url + "'");
+		stmt.executeUpdate("update visitedurl set priority='" + url.getPriority() + "'"
+				+ "  where url='" + url.getOriUrl()+ "'");
 	}
 
-	public void updatedUNVisitedURL(String url, int priority) throws Exception,
+	public void updatedUNVisitedURL(CrawlUrl url) throws Exception,
 			SQLException {
 		Statement stmt = con.createStatement();
-		stmt.executeUpdate("update unvisitedurl set priority='" + priority
-				+ "'" + "where priority='" + priority + "'");
+		stmt.executeUpdate("update unvisitedurl set priority='" + url.getPriority()
+				+ "'" + "where priority='" + url.getPriority() + "'");
 	}
 
 	public int selectVisited_Size() throws Exception, SQLException {
@@ -122,11 +120,7 @@ public class DataBaseCRUD {
 	public static void main(String[] args) throws SQLException, Exception {
 		DataBaseCRUD crud=new DataBaseCRUD();
 		int size=crud.selectUNVisited_Size();
-		System.out.println(size);
-		HashMap<String,Integer> hash=crud.getURL();
-		String key=(String)hash.keySet().toArray()[0];
-		System.out.println(key);
-		System.out.println(hash.get(key));
+	
 	}
 
 }

@@ -50,7 +50,6 @@ public class HttpConnectPool {
 			ActiveConnectList.add(httpconnect);
 			HttpConnectPool.setPOOLSIZE(false);
 			logger.info("new conncet:");
-			logger.info(httpconnect);
 			return httpconnect;
 		}
 	}

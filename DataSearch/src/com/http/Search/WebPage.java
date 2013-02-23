@@ -1,43 +1,36 @@
 package com.http.Search;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
 
+
+import java.util.LinkedList;
+import com.crawl.document.Document;
+/*
+ * 
+ * 
+ */
 public class WebPage {
-	private HashMap<String, String> node;
-
+	private LinkedList<Document> document;
 	public WebPage() {
-		node = new HashMap<String, String>();
+		document=new LinkedList<Document>();
 	}
-
-	public WebPage getNode() {
-		return new WebPage();
+	public void addDocument(Document document){
+		this.document.addLast(document);
 	}
-
-	public String getKey() {
-		Set<String> key = node.keySet();
-		if (!key.isEmpty()) {
-			Iterator<String> iterator = key.iterator();
-			return iterator.next();
+	
+	public Document nextDocument(){
+		if(document.isEmpty()){
+			return null;
 		}
-		return null;
+		else {
+			return document.pollFirst();
+		}
 	}
-
-	public void put(String key, String value) {
-		node.put(key, value);
-	}
-
-	public Set<String> keySet() {
-		return node.keySet();
-	}
-
-	public Set<Entry<String, String>> entrySet() {
-		return node.entrySet();
-	}
-
-	public String getVaule(String key) {
-		return node.get(key);
+	public boolean hasNext(){
+		if(document.isEmpty()){
+			return false;
+		}
+		else{
+			return true;
+		}
 	}
 }

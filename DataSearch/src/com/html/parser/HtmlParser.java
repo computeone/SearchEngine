@@ -14,11 +14,16 @@ import org.htmlparser.filters.OrFilter;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
+import com.crawl.document.Document;
 import com.http.Search.WebPage;
 import com.http.connect.HttpResponseHeader;
 import com.http.connect.HttpURLParserImpl;
-import com.http.control.SpiderWebCentral;
+import com.http.control.CrawlWebCentral;
 
+/*
+ * 
+ * 
+ */
 public class HtmlParser implements DocumentParser {
 	private File file;
 	private String url;
@@ -67,7 +72,8 @@ public class HtmlParser implements DocumentParser {
 	public LinkedList<String> parser(File file, String encoding) {
 		//links存储的是没有被访问的url
 		LinkedList<String> links = new LinkedList<String>();
-		WebPage webpage = new WebPage();
+		Document document=new Document();
+		document.setUrl(url);
 		try {
 			Parser parser = new Parser(file.getAbsolutePath());
 			parser.setEncoding(encoding);
@@ -137,7 +143,7 @@ public class HtmlParser implements DocumentParser {
 						String keyword = matcher_keyword.group(1);
 						System.out.println(keyword);
 						// 加入得到的信息，
-						webpage.put(this.url, keyword);
+						document.setKeyword(keyword);
 					} catch (Exception e) {
 						// logger.debug("analyize error");
 						continue;
@@ -151,7 +157,7 @@ public class HtmlParser implements DocumentParser {
 						String title = matcher_title.group(1);
 						System.out.println(title);
 						if(title!=null){
-							webpage.put(this.url, title);
+							document.setTitle(title);
 						}
 						
 					} catch (Exception e) {
@@ -177,12 +183,6 @@ public class HtmlParser implements DocumentParser {
 							if(filter.isSuse(link)){
 								System.out.println(link);
 								links.add(link);
-							}
-							
-						}
-						if(keyword!=null){
-							if(filter.isSuse(link)){
-								webpage.put(link, keyword);
 							}
 							
 						}
@@ -216,11 +216,6 @@ public class HtmlParser implements DocumentParser {
 							
 						}
 						//如果alt不为空则加入webpage
-						if(alt!=null){
-							if(filter.isSuse(img)){
-								webpage.put(img, alt);
-							}
-						}
 						
 					} catch (Exception e) {
 						continue;
@@ -252,7 +247,7 @@ public class HtmlParser implements DocumentParser {
 				}
 				// System.out.println(node.toHtml());
 			}
-			SpiderWebCentral.addWebPage(webpage);
+			CrawlWebCentral.addWebPage(document);
 			// 解析出来正确的url
 		} catch (ParserException e) {
 			logger.error(e.getMessage());
