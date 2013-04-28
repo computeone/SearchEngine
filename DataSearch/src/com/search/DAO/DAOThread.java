@@ -2,10 +2,10 @@ package com.search.DAO;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import com.search.index.BuildIndexDataBase;
 
 public class DAOThread extends Thread{
 	private String dirpath;
-	private Connection connection;
 	private int start;
 	private int count;
 	public DAOThread(String dirpath,int count,int start){
@@ -14,12 +14,11 @@ public class DAOThread extends Thread{
 		this.start=start;
 	}
 	public DAOThread(Connection connection,int count,int start){
-		this.connection=connection;
 		this.count=count;
 		this.start=start;
 	}
 	public void run(){
-		DataBaseOp op=new DataBaseOp();
+		BuildIndexDataBase op=new BuildIndexDataBase();
 		try {
 			op.DataBaseSave(dirpath, count,start);
 		} catch (SQLException e) {

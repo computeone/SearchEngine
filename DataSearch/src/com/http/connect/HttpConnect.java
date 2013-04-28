@@ -2,8 +2,12 @@ package com.http.connect;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,24 +16,25 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.http.connect.filter.HttpURLFilterChain;
+import com.http.Search.CrawlUrl;
 import com.http.constant.HttpResponseHeaderConstant;
 
+/*
+ * HTTP连接主要的类
+ */
 public class HttpConnect {
-	private String protocol;// 所使用的协议
 	private String url;// 网络资源的URL
-	private InputStream in;
+	private CrawlUrl crawlurl;//抓取到的URL 
+	private InputStream in;//网络输出入流
+	private OutputStream out;//网络输出流
 	private Map<String, List<String>> fields;
-	private HttpResponseHeader httpresponseheader;
+	private HttpRequestHeader  httprequestheader;//http请求头
+	private HttpResponseHeader httpresponseheader;//http答复头
 	private HttpURLConnection httpconnect;
 	private Logger logger = LogManager.getLogger("HttpConnect");
-
-	public HttpConnect(String url) {
-		this.url = url;
-	}
-
-	public String getProtocol() {
-		return this.protocol;
+	private Map<String,String> header=new HashMap<String,String>();
+	public CrawlUrl getCrawlurl() {
+		return crawlurl;
 	}
 
 	public String getUrl() {
@@ -44,80 +49,117 @@ public class HttpConnect {
 		return this.in;
 	}
 
+	public OutputStream getOutputStream(){
+		return out;
+	}
 	public Map<String, List<String>> getFields() {
 		return this.fields;
 	}
 
-	public void registerHttpURLParser(HttpURLParser httpurlparser) {
-		logger.debug(this.toString() + ":" + "register HttpURLParser");
+	public HttpRequestHeader getHttprequestheader() {
+		return httprequestheader;
+	}	
+
+	public HttpResponseHeader getHttpresponseheader() {
+		return httpresponseheader;
+	}
+	private void setHttpResponseHeader(Map<String,String> header){
+		Set<String> keyset=header.keySet();
+		for(String key:keyset){
+			this.setEntry(key, header.get(key));
+		}
+	}
+	public HttpConnect() {
+		
+	}
+	/*
+	 * 连接成功时，处理方法
+	 */
+	public void success() throws Exception {
+		httpconnect.setConnectTimeout(50);
+		if (httpconnect.getResponseCode() == 301
+				|| httpconnect.getResponseCode() == 302) {
+			this.redirect();
+		}
+		else{
+			in = httpconnect.getInputStream();
+			fields = httpconnect.getHeaderFields();
+			//解析头
+			int i=0;
+			while(true){
+				String key=httpconnect.getHeaderFieldKey(i);
+				String value=httpconnect.getHeaderField(i);
+				if(i==0){
+					header.put("statuscode", value);
+					i++;
+					continue;
+				}
+				if(key==null){
+					break;
+				}
+				header.put(key, value);
+				i++;
+			}
+			httpresponseheader = new HttpResponseHeader();
+			this.setHttpResponseHeader(header);
+			this.setCrawlUrl();			
+		}
+		
 	}
 
-	public void registerHttpURLFilterChain(HttpURLFilterChain httpurlfilterchain) {
-		logger.debug(this.toString() + ":" + "register HttpURLFilterChain");
-	}
-
-	public void success() {
-	}
-
+	/*
+	 * 丢弃连接
+	 */
 	public void discard() throws Exception {
 		throw new Exception();
 	}
 
+	/*
+	 * 重定向连接
+	 */
 	public void redirect() throws Exception {
-		String redirecturl = this.getHttpresponseheader().getLocation().get(0);
+		String redirecturl = this.getHttpresponseheader().getLocation();
 		this.setUrl(redirecturl);
-		this.Connect();
+		Connect();
 	}
-
-	public void Connect() throws Exception {// 连接失败在Spiderthread中处理
-		HttpURLParserImpl httpparser = new HttpURLParserImpl();
+	/*
+	 * 连接的主要方法
+	 */
+	public void Connect() throws Exception {
+		SimpleHttpURLParser httpparser = new SimpleHttpURLParser();
 		boolean result = httpparser.vertifyURL(url);
 		logger.info(url);
 		if (!result) {
 			throw new IOException();
 		}
-		/*
-		 * 使用DNS缓存
-		 */
+		
 		URL urlconnect = new URL(url);
 		httpconnect = (HttpURLConnection) urlconnect.openConnection();
-		httpconnect.setConnectTimeout(1000);
-		if (httpconnect.getResponseCode() == 301
-				|| httpconnect.getResponseCode() == 302) {
-			this.redirect();
+		if(httpconnect!=null){
+			success();
 		}
-		in = httpconnect.getInputStream();
-		fields = httpconnect.getHeaderFields();
-		httpresponseheader = new HttpResponseHeader();
-		this.setHttpresponseheader();
-		// urlconnect.disconnect();//释放http连接
-	}
-
-	public HttpResponseHeader getHttpresponseheader() {
-		return httpresponseheader;
-	}
-
-	// 保存下载下来的文件的响应头
-	private void setHttpresponseheader() {
-		Set<Map.Entry<String, List<String>>> entryset = fields.entrySet();
-		Iterator<Map.Entry<String, List<String>>> iterator = entryset
-				.iterator();
-		while (iterator.hasNext()) {
-			Map.Entry<String, List<String>> map = iterator.next();
-			this.setEntry(map.getKey(), map.getValue());
+		else{
+			discard();
 		}
+		
 	}
-
 	// 设置响应头的项
 	public void releaseConnect() {
 		httpconnect.disconnect();
 	}
 
-	private void setEntry(String entry, List<String> value) {
-		if (entry == null) {
+	private void setCrawlUrl(){
+		crawlurl=new CrawlUrl();
+		crawlurl.setPriority(0);
+		crawlurl.setOriUrl(url);
+		crawlurl.setLastUpdateTime(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+		crawlurl.setCharSet("utf-8");
+	}
+	private void setEntry(String key,String value) {
+		if (key == null) {
 			return;
 		}
-		switch (entry) {
+		switch (key) {
 		case HttpResponseHeaderConstant.Date:
 			httpresponseheader.setDate(value);
 			break;

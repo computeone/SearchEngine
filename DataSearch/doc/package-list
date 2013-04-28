@@ -1,0 +1,17 @@
+com.crawl.document
+com.doc.parser
+com.excel.parser
+com.html.parser
+com.http.ADO
+com.http.Search
+com.http.connect
+com.http.connect.filter
+com.http.constant
+com.http.control
+com.http.dns
+com.pdf.parser
+com.search.DAO
+com.search.Search
+com.search.analyzer
+com.search.data
+com.search.index

@@ -1,5 +1,8 @@
 package com.http.connect;
 
+/*
+ * 
+ */
 public class HttpRequestHeader {
 	private String User_agent;// 标志客户程序
 	private String Accept;// 给出客户能够接受的媒体格式

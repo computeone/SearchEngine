@@ -1,40 +1,69 @@
 package com.search.index;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.search.data.Token;
-import com.search.data.TokenIDOverException;
 
+/*
+ * 对token按照音节顺序排序
+ */
 public class TokenSort {
+	
+	
 	public static Token[] Sort(Token[] token) {
 		TokenCompare compare = new TokenCompare();
 		Arrays.sort(token, compare);
 		return token;
 	}
+	
+	public static LinkedList<Token> Sort(LinkedList<Token> tokens){
+		Token token=tokens.getFirst();
+		TokenCompare compare=new TokenCompare();
+		
+		int n=0;
+		for(int i=1;i<tokens.size();i++){
+			for(int j=i;j<tokens.size();j++){
+				if(compare.compare(tokens.get(i), token)==-1){
+					token=tokens.get(i);
+					n=i;
+				}	
+			}
+			//交换		
+			Token temp=tokens.get(n);
+			tokens.set(n, tokens.get(i-1));
+			tokens.set(i-1, temp);
+			
+			//初始化
+			n=i;
+			token=tokens.get(i);
+		}
+		return tokens;
+		
+	}
 
+	//合并排序
 	public static LinkedList<Token> MergeSort(LinkedList<Token> t1,
 			LinkedList<Token> t2) {
-		LinkedList<Token> token = new LinkedList<Token>();
+		LinkedList<Token> tokens = new LinkedList<Token>();
 		TokenCompare compare = new TokenCompare();
 		while (!t1.isEmpty() && !t2.isEmpty()) {
 			if (!t1.isEmpty()
 					&& compare.compare(t1.peekFirst(), t2.peekFirst()) <= 0) {
-				token.addLast(t1.pollFirst());
+				tokens.addLast(t1.pollFirst());
 			} else {
 				if (!t2.isEmpty()) {
-					token.add(t2.pollFirst());
+					tokens.add(t2.pollFirst());
 				}
 			}
 			while (t1.isEmpty() && !t2.isEmpty()) {
-				token.add(t2.pollFirst());
+				tokens.add(t2.pollFirst());
 			}
 			while (t2.isEmpty() && !t1.isEmpty()) {
-				token.add(t1.pollFirst());
+				tokens.add(t1.pollFirst());
 			}
 		}
-		return token;
+		return tokens;
 	}
 
 	public static Token[] mergeSort(Token[] t1, Token[] t2) {

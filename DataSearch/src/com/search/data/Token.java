@@ -1,11 +1,18 @@
 package com.search.data;
 
+/*
+ * 
+ */
 public class Token {
 	private String text;
 	private long id;
 	private int[] code;;
+	//token的最大长度
 	private final int Token_Length = 1 << 20;
-
+	/*
+	 * text即文本，id即field的ID，offset即token在field中的位置
+	 */
+	//id是field的id号，offset是在当前文档中token在field中的偏移量
 	public Token(String text, long id, int offset) throws TokenIDOverException {
 		if (offset < Token_Length) {
 			this.text = text;

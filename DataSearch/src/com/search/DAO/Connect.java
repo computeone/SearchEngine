@@ -2,9 +2,7 @@ package com.search.DAO;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class Connect {
 	public static final String DATABASE_TYPE_MYSQL = "MySQL";
@@ -27,32 +25,8 @@ public class Connect {
 			Class.forName("com.mysql.jdbc.Driver");
 		}
 		Connection connection = DriverManager
-				.getConnection("jdbc:mysql://localhost:3306/search","root", "niubaisui");
+				.getConnection("jdbc:mysql://localhost:3306/niubaisui","root", "niubaisui");
 		return connection;
-	}
-
-	public static void main(String[] args) throws SQLException,
-			ClassNotFoundException {
-		Connection[] connect=new Connection[108];
-		int i=0;
-		while(i<108){
-		Class.forName("com.mysql.jdbc.Driver");
-		Connection connection = DriverManager.getConnection(
-				"jdbc:mysql://localhost:3306/niubaisui", "root", "niubaisui");
-		boolean result = connection.isClosed();
-		connect[i]=connection;
-		System.out.println(result);
-		Statement stmt = connection.createStatement();
-		ResultSet rs = stmt.executeQuery("select * from token_4 where term='¼ÆËã»ú'");
-//		while (rs.next()) {
-//			System.out.println(rs.getString("Name"));
-//			System.out.println(rs.getInt("ID"));
-//		}
-		// byte[] name=resultset.getBytes("Name");
-		// System.out.println(name);
-		i++;
-		}
-		
 	}
 
 }

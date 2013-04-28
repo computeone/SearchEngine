@@ -10,7 +10,6 @@ public class CrawlUrl {
 	 * 
 	 */
 	private String oriUrl;//原始URL的值，主机部分是域名
-	
 	private String url;//URL值，主机部分是IP，为了防止重复主机的出现
 	private int urlNo;//URL NUM
 	private int statusCode;//获取URL返回的结果码
@@ -25,7 +24,7 @@ public class CrawlUrl {
 	private Date timeToLive;//过期时间
 	private String title;//文章标题
 	private String type;//文章类型
-	private String[] urlReferences;//引用的链接
+//	private String[] urlReferences;//引用的链接
 	private int layer;//爬取得层次，从种子开始，依次为第0层，第一层
 	public String getUrl() {
 		return url;
@@ -106,12 +105,12 @@ public class CrawlUrl {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public String[] getUrlReferences() {
-		return urlReferences;
-	}
-	public void setUrlReferences(String[] urlReferences) {
-		this.urlReferences = urlReferences;
-	}
+//	public String[] getUrlReferences() {
+//		return urlReferences;
+//	}
+//	public void setUrlReferences(String[] urlReferences) {
+//		this.urlReferences = urlReferences;
+//	}
 	public int getLayer() {
 		return layer;
 	}

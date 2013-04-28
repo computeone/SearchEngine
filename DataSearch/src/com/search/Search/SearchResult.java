@@ -2,7 +2,9 @@ package com.search.Search;
 
 import com.search.data.Field;
 
-//搜索得到的结果
+/*
+ * 搜索得到的结果
+ */
 public class SearchResult {
 	private Field field;
 	private String url;

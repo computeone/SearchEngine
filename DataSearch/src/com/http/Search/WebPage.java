@@ -3,7 +3,8 @@ package com.http.Search;
 
 
 import java.util.LinkedList;
-import com.crawl.document.Document;
+
+import com.search.data.Document;
 /*
  * 
  * 
@@ -13,6 +14,7 @@ public class WebPage {
 	public WebPage() {
 		document=new LinkedList<Document>();
 	}
+	
 	public void addDocument(Document document){
 		this.document.addLast(document);
 	}

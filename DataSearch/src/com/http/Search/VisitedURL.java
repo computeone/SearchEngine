@@ -11,7 +11,7 @@ public class VisitedURL {
 	public VisitedURL(){
 		bloomfilter=new UrlBloomFilter();
 	}
-	//如果存在则更新返回false,否则返回true
+	//如果存在则更新返回true,否则返回false
 	public boolean addURL(CrawlUrl url) throws Exception {
 		//如果存在则更新，否则什么都不做
 		if(bloomfilter.contains(url)){
@@ -20,11 +20,11 @@ public class VisitedURL {
 			int priority=crawlurl.getPriority();
 			crawlurl.setPriority(priority+10);
 			updatedURL(crawlurl);
-			return false;
+			return true;
 		}
 		
 		else{
-			return true;
+			return false;
 		}
 	}
 
@@ -37,7 +37,6 @@ public class VisitedURL {
 	public void add_known_URL(CrawlUrl url) throws SQLException, Exception {
 		//添加进布隆过滤器
 		bloomfilter.add(url);
-		
 		crud.insert_visitedURL(url);
 	}
 

@@ -5,14 +5,12 @@ import java.util.LinkedList;
 
 import org.htmlparser.NodeFilter;
 import org.htmlparser.filters.AndFilter;
-import org.htmlparser.filters.HasParentFilter;
-import org.htmlparser.filters.NodeClassFilter;
+import org.htmlparser.filters.HasAttributeFilter;
 import org.htmlparser.filters.TagNameFilter;
-import org.htmlparser.tags.FrameTag;
-import org.htmlparser.tags.HeadTag;
-import org.htmlparser.tags.ImageTag;
-import org.htmlparser.tags.LinkTag;
 
+/*
+ * 解析Html文件的过滤器链
+ */
 public class HtmlLinkFilterChain{
 
 	private static LinkedList<NodeFilter> filterstack;
@@ -20,23 +18,26 @@ public class HtmlLinkFilterChain{
 
 	public HtmlLinkFilterChain() {
 		filterstack = new LinkedList<NodeFilter>();
-		NodeClassFilter head = new NodeClassFilter(HeadTag.class);
-		NodeClassFilter link = new NodeClassFilter(LinkTag.class);
-		NodeClassFilter img = new NodeClassFilter(ImageTag.class);
-		NodeClassFilter frame = new NodeClassFilter(FrameTag.class);
-		TagNameFilter iframe = new TagNameFilter("iframe");
-		AndFilter andfilter1 = new AndFilter(new HasParentFilter(head),
-				new HasParentFilter(head));
-		AndFilter andfilter2 = new AndFilter(link, link);
-		AndFilter andfilter3 = new AndFilter(img, img);
-		AndFilter andfilter4 = new AndFilter(frame, frame);
-		AndFilter andfilter5 = new AndFilter(iframe, iframe);
-		this.addFilter(andfilter1);
-		this.addFilter(andfilter2);
-		this.addFilter(andfilter3);
-		this.addFilter(andfilter4);
-		this.addFilter(andfilter5);
-		// this.addFilter(andfilter3);
+		
+		//以下是一些要用到的过滤器
+		TagNameFilter title=new TagNameFilter("title");
+		TagNameFilter meta=new TagNameFilter("meta");
+		TagNameFilter a=new TagNameFilter("a");
+		TagNameFilter frame=new TagNameFilter("frame");
+		TagNameFilter iframe=new TagNameFilter("iframe");
+		
+		HasAttributeFilter href=new HasAttributeFilter("href");
+		HasAttributeFilter src=new HasAttributeFilter("src");
+		
+		AndFilter  a_limt=new AndFilter(a,href);
+		AndFilter  frame_limt=new AndFilter(frame,src);
+		AndFilter  iframe_limt=new AndFilter(iframe,src);
+		
+		this.addFilter(title);
+		this.addFilter(meta);
+		this.addFilter(a_limt);
+		this.addFilter(frame_limt);
+		this.addFilter(iframe_limt);
 		filteriterator = filterstack.iterator();
 	}
 

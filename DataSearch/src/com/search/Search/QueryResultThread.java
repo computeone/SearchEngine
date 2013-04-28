@@ -31,19 +31,19 @@ public class QueryResultThread extends Thread {
 				IDhandler idhandler = new IDhandler(id);
 				ResultSet resultset = stmt.executeQuery("select priority,"
 						+ "content from field where id='"
-						+ idhandler.Field_id() + "'");
+						+ idhandler.getCurrent_Field_id() + "'");
 				Field field = null;
 				while (resultset.next()) {
 					String text = resultset.getString("content");
 					int priority = resultset.getInt("priority");
-					field = new Field(text, idhandler.getPage_id(),
+					field = new Field(text, idhandler.getDocumnent_id(),
 							idhandler.getField_id() >> 20);
 					field.setPriority(priority);
 				}
 				Statement stmt_page = con.createStatement();
 				ResultSet resultset_page = stmt_page
 						.executeQuery("select content from document where "
-								+ "id='" + idhandler.getPage_id() + "'");
+								+ "id='" + idhandler.getDocumnent_id() + "'");
 				String url = null;
 				while (resultset_page.next()) {
 					String content = resultset_page.getString("content");

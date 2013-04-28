@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import com.search.DAO.CURD;
-import com.search.analyzer.AnalyzerImp;
+import com.search.analyzer.SimpleAnalyzer;
 import com.search.data.IDhandler;
 public class Search {
 	private static LinkedList<Long> id_list=new LinkedList<Long>();
@@ -76,29 +76,10 @@ public class Search {
 		LinkedList<SearchResult> search_result=new LinkedList<SearchResult>();
 		while(!Search.isEmpty());
 				
-		FileOutputStream out=this.writefile();
 		while(!Search.searchresult.isEmpty()){
 			SearchResult s=Search.searchresult.pollFirst();
 			s.setTerm(term);
 			search_result.addLast(s);
-			IDhandler idhandler=new IDhandler(s.getID());
-//			out.write("-------------------------------------".getBytes());
-//			out.write('\n');
-//			out.write(s.getURL().getBytes());
-//			out.write('\n');
-//			out.write(s.getContent().getBytes());
-//			out.write('\n');
-//			out.write(String.valueOf(s.getPriority()).getBytes());
-//			out.write('\n');
-//			out.write("pageid:".getBytes());
-//			out.write(String.valueOf(idhandler.getPage_id()>>40).getBytes());
-//			out.write('\n');
-//			out.write("fieldid:".getBytes());
-//			out.write(String.valueOf(idhandler.getField_id()>>20).getBytes());
-//			out.write('\n');
-//			out.write("tokenid:".getBytes());
-//			out.write(String.valueOf(idhandler.getToken_id()).getBytes());
-//			out.write('\n');
 		}
 		
 		return search_result;
@@ -106,30 +87,31 @@ public class Search {
 	//根据命中语句设置优先级
 	public LinkedList<SearchResult> mergeSearch(String str) throws SQLException, Exception{
 		//
-		AnalyzerImp analyzer=new AnalyzerImp(str,true);
-		String[] s=analyzer._analyzer();
-		for(String s1:s){
-			System.out.println(s1);
-		}
-		//
-		ArrayList<LinkedList<SearchResult>> search_result=
-				new ArrayList<LinkedList<SearchResult>>(s.length);
-
-		for(int i=0;i<s.length;i++){
-			search_result.add(i, this.search(s[i]));
-		}
-		for(int i=1;i<s.length;i++){
-			addPrority(search_result.get(i-1),search_result.get(i));
-		}
-		LinkedList<SearchResult> result=new LinkedList<SearchResult>();
-		for(int i=0;i<search_result.size();i++){
-			Iterator<SearchResult> iterator=search_result.get(i).iterator();
-			while(iterator.hasNext()){
-				result.addLast(iterator.next());
-			}
-		}
-		result=Sort_Priority(result);
-		return result;
+//		SimpleAnalyzer analyzer=new SimpleAnalyzer(str,true);
+////		String[] s=analyzer._analyzer();
+//		for(String s1:s){
+//			System.out.println(s1);
+//		}
+//		//
+//		ArrayList<LinkedList<SearchResult>> search_result=
+//				new ArrayList<LinkedList<SearchResult>>(s.length);
+//
+//		for(int i=0;i<s.length;i++){
+//			search_result.add(i, this.search(s[i]));
+//		}
+//		for(int i=1;i<s.length;i++){
+//			addPrority(search_result.get(i-1),search_result.get(i));
+//		}
+//		LinkedList<SearchResult> result=new LinkedList<SearchResult>();
+//		for(int i=0;i<search_result.size();i++){
+//			Iterator<SearchResult> iterator=search_result.get(i).iterator();
+//			while(iterator.hasNext()){
+//				result.addLast(iterator.next());
+//			}
+//		}
+//		result=Sort_Priority(result);
+//		return result;
+		return null;
 	}
 	//根据词之间的匹配程度进行设置优先级
 	public void addPrority(LinkedList<SearchResult> result1,LinkedList<SearchResult> result2) throws IOException{
@@ -214,7 +196,7 @@ public class Search {
 			idhandler.setID(s.getID());
 			out.write(String.valueOf(s.getID()).getBytes());
 			out.write('\n');
-			out.write(String.valueOf(idhandler.Field_id()).getBytes());
+			out.write(String.valueOf(idhandler.getCurrent_Field_id()).getBytes());
 			out.write('\n');
 		}
 	}

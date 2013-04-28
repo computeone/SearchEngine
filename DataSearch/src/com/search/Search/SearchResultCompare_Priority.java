@@ -2,6 +2,9 @@ package com.search.Search;
 
 import java.util.Comparator;
 
+/*
+ * 
+ */
 public class SearchResultCompare_Priority implements Comparator<SearchResult>{
 
 	@Override

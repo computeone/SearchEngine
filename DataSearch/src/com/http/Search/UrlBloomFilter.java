@@ -3,7 +3,7 @@ package com.http.Search;
 import java.util.BitSet;
 
 /*
- * 
+ * ²¼Â¡¹ýÂËÆ÷
  */
 public class UrlBloomFilter {
 	private static int DEFAULT_SIZE=2<<24;
@@ -57,12 +57,5 @@ public class UrlBloomFilter {
 			}
 			return (cap-1)&result;
 		}
-	}
-	public static void main(String[] args) {
-		String value="http://www.suse.edu.cn";
-		UrlBloomFilter filter=new UrlBloomFilter();
-		System.out.println(filter.contains(value));
-		filter.add(value);
-		System.out.println(filter.contains(value));
 	}
 }

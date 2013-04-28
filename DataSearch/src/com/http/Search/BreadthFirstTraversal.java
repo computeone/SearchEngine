@@ -1,18 +1,16 @@
 package com.http.Search;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.http.control.CrawlThread;
-
-public class BreadthFirstTraversal {
-	// private String rootdir;// 存放下载下来文件的根目录
+import com.http.control.CrawlThreadPool;
+public class BreadthFirstTraversal{
 	private static VisitedURL visitedUrl;
-	private static UnvisitedURL unvisitedUrl;
+	private static UnVisitedURL unvisitedUrl;
+	private CrawlThreadPool crawlthreadpool;
 	private Logger logger = LogManager.getLogger("BreadthFirstTraversal");
 
 	// 初始化
@@ -29,9 +27,9 @@ public class BreadthFirstTraversal {
 			System.exit(0);
 		} else {
 			visitedUrl = new VisitedURL();
-			unvisitedUrl = new UnvisitedURL();
+			unvisitedUrl = new UnVisitedURL();
 			for (CrawlUrl url : initurl) {
-				logger.info("seed: " + url);
+				logger.info("seed: " + url.getOriUrl());
 				//
 				unvisitedUrl.addURL(url);
 			}
@@ -51,7 +49,7 @@ public class BreadthFirstTraversal {
 	// 添加到unvisitedurl,主要针对知道不存在时插入
 	public static synchronized void add_known_URLVisited(CrawlUrl url) {
 		try {
-			visitedUrl.addURL(url);
+			visitedUrl.add_known_URL(url);
 		} catch (Exception e) {
 			
 		}
@@ -66,7 +64,7 @@ public class BreadthFirstTraversal {
 			return (Boolean) null;
 		}
 	}
-	//没有没有被访问的url了是返回null
+	//没有被访问的url了,返回null
 	public static synchronized CrawlUrl getUNVisitedURL() {
 		CrawlUrl url = null;
 		try {
@@ -77,7 +75,7 @@ public class BreadthFirstTraversal {
 		return url;
 	}
 
-	public static synchronized int getSizeVisited() {
+	public static synchronized int getVisitedURL_Size() {
 		int size = -1;
 		try {
 			size = visitedUrl.getSize();
@@ -87,7 +85,7 @@ public class BreadthFirstTraversal {
 		return size;
 	}
 
-	public static synchronized int getSizeUNVisited() {
+	public static synchronized int getUNVisitedURL_Size() {
 		int size = -1;
 		try {
 			size = unvisitedUrl.getSize();
@@ -97,12 +95,14 @@ public class BreadthFirstTraversal {
 		return size;
 	}
 
+	public void setCrawlThreadPool(CrawlThreadPool pool){
+		this.crawlthreadpool=pool;
+	}
 	// 主要的方法，它是整个程序的执行引擎，触发多个线程同时抓取网页。
-	public void Traversal(ThreadPoolExecutor pool) throws Exception {
+	public void Traversal() throws Exception {
 		CrawlUrl crawlurl = BreadthFirstTraversal.getUNVisitedURL();
-		ThreadPoolExecutor spiderpool = pool;
 		if (crawlurl != null) {
-			spiderpool.execute(new CrawlThread(crawlurl));
+			crawlthreadpool.execute(new CrawlThread(crawlurl));
 		}
 	}
 }

@@ -5,6 +5,9 @@ import java.util.LinkedList;
 
 import com.search.data.Token;
 
+/*
+ * 
+ */
 //将Token分为1字、2字、3字、4字以上的Token
 public class Classify_Token {
 	public static ArrayList<LinkedList<Token>> classify_Token(Token[] token) {
