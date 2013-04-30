@@ -11,14 +11,18 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.search.DAO.Connect;
 import com.search.data.Document;
 
 public class DocumentThread extends Thread {
 	private LinkedList<Document> documents;
+	private Logger logger=LogManager.getLogger("DocumentThread");
 	
 	private String SaveDocument_sql() throws Exception, SQLException {
-		String sql = "insert into Document(id,rank,create_date,attributes,index_number) values (?,?,?,?,?)";
+		String sql = "insert into Document(id,rank,create_date,store_attributes,index_attributes) values (?,?,?,?,?)";
 		return sql;
 	}
 	
@@ -43,19 +47,19 @@ public class DocumentThread extends Thread {
 				
 				PreparedStatement stmt = con.prepareStatement(this.SaveDocument_sql());
 				
-				System.out.println("正在写第ID为：" + document.getID()+ "个文件");
+				logger.info("writing id="+document.getID()+" document");
 				
 				//序列化
 				ByteArrayOutputStream attributes_out=new ByteArrayOutputStream();
 				ObjectOutputStream attributes_object=new ObjectOutputStream(attributes_out);
-				attributes_object.writeObject(document.getAllAttributes());
+				attributes_object.writeObject(document.getStore_attributes());
 				ByteArrayInputStream attributes_in=new ByteArrayInputStream(attributes_out.toByteArray());
 				
 				//序列化
-				ByteArrayOutputStream indexnumber_out=new ByteArrayOutputStream();
-				ObjectOutputStream indexnumber_object=new ObjectOutputStream(indexnumber_out);
-				indexnumber_object.writeObject(document.getIndex_number());
-				ByteArrayInputStream indexnumber_in=new ByteArrayInputStream(indexnumber_out.toByteArray());
+				ByteArrayOutputStream indexattributes_out=new ByteArrayOutputStream();
+				ObjectOutputStream indexattributes_object=new ObjectOutputStream(indexattributes_out);
+				indexattributes_object.writeObject(document.getIndex_attributes());
+				ByteArrayInputStream indexattributes_in=new ByteArrayInputStream(indexattributes_out.toByteArray());
 				
 				//写占位符
 				stmt.setLong(1, document.getID());
@@ -63,7 +67,7 @@ public class DocumentThread extends Thread {
 				stmt.setTimestamp(3, new Timestamp(Calendar.getInstance()
 						.getTimeInMillis()));
 				stmt.setAsciiStream(4,attributes_in);
-				stmt.setAsciiStream(5, indexnumber_in);
+				stmt.setAsciiStream(5,indexattributes_in);
 				stmt.execute();
 			} catch (Exception e) {
 				e.printStackTrace();

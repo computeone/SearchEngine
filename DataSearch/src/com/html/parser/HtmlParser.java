@@ -94,22 +94,22 @@ public class HtmlParser implements DocumentParser {
 		Matcher matcher_keyword=pattern_keyword.matcher(str);
 		boolean result=matcher_keyword.matches();
 		if(result){
-			if(matcher1.matches()){
-				logger.info("name:"+matcher1.group(1)+"  content:"+matcher1.group(2));
-				document.addAttribute(matcher1.group(1), matcher1.group(2));
-			}
-			else if(matcher2.matches()){
-				logger.info("name:"+matcher2.group(2)+"  content:"+matcher2.group(1));
-				document.addAttribute(matcher2.group(2),matcher2.group(1));
-			}
-			else if(matcher3.matches()){
-				logger.info("http-equiv:"+matcher3.group(1)+"  content:"+matcher3.group(2));
-				document.addAttribute(matcher3.group(1), matcher3.group(2));
-			}
-			else if(matcher4.matches()){
-				logger.info("http-equiv:"+matcher1.group(2)+"  content:"+matcher1.group(1));
-				document.addAttribute(matcher4.group(2),matcher4.group(1));
-			}
+//			if(matcher1.matches()){
+//				logger.info("name:"+matcher1.group(1)+"  content:"+matcher1.group(2));
+//				document.addAttribute(matcher1.group(1), matcher1.group(2));
+//			}
+//			else if(matcher2.matches()){
+//				logger.info("name:"+matcher2.group(2)+"  content:"+matcher2.group(1));
+//				document.addAttribute(matcher2.group(2),matcher2.group(1));
+//			}
+//			else if(matcher3.matches()){
+//				logger.info("http-equiv:"+matcher3.group(1)+"  content:"+matcher3.group(2));
+//				document.addAttribute(matcher3.group(1), matcher3.group(2));
+//			}
+//			else if(matcher4.matches()){
+//				logger.info("http-equiv:"+matcher1.group(2)+"  content:"+matcher1.group(1));
+//				document.addAttribute(matcher4.group(2),matcher4.group(1));
+//			}
 			return true;
 		}
 		return false;
@@ -193,7 +193,7 @@ public class HtmlParser implements DocumentParser {
 		Matcher matcher=Pattern.compile(regex).matcher(str);
 		if(matcher.matches()){
 			logger.info("title:"+matcher.group(1));
-			document.addAttribute("title", matcher.group(1));
+//			document.addAttribute("title", matcher.group(1));
 			return true;
 		}
 		return false;

@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.http.Search.CrawlUrl;
@@ -20,7 +21,7 @@ public class HttpConnectTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		httpconnect=new HttpConnect();
-		httpconnect.setUrl("http://www.baidu.com");
+		httpconnect.setUrl("http://jcc.suse.edu.cn/");
 		httpconnect.Connect();
 	}
 
@@ -38,7 +39,7 @@ public class HttpConnectTest {
 		
 	}
 
-	@Test
+	@Ignore
 	public void testGetCrawlurl() {
 		CrawlUrl crawlurl=httpconnect.getCrawlurl();
 		System.out.println(crawlurl.getOriUrl());

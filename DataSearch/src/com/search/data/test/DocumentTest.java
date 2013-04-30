@@ -22,7 +22,7 @@ public class DocumentTest {
 	/**
 	 * @throws java.lang.Exception
 	 */
-	private  Document document;
+	private Document document;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -39,7 +39,7 @@ public class DocumentTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		document=new Document(1);
+		document=new Document(100l);
 	}
 
 	/**
@@ -48,65 +48,44 @@ public class DocumentTest {
 	@After
 	public void tearDown() throws Exception {
 		document=null;
+	}
+
+	/**
+	 * Test method for {@link com.search.data.Document#addIndex_attribute(java.lang.String, java.lang.String)}.
+	 */
+	@Test
+	public void testAddIndex_attribute() {
+		document.addIndex_attribute("name","niubaisui");
+		document.addIndex_attribute("lejie", "dongfangbubei");
+		document.addIndex_attribute("aiwo", "chengqiaoen");
 		
+		int lejie=document.getIndex_count("lejie");
+		int name=document.getIndex_count("name");
+		int aiwo=document.getIndex_count("aiwo");
+		assertEquals(1,name);
+		assertEquals(2, lejie);
+		assertEquals(3, aiwo);
 	}
 
 	/**
-	 * Test method for {@link com.search.data.Document#getID()}.
+	 * Test method for {@link com.search.data.Document#addStore_attribute(java.lang.String, java.lang.String)}.
 	 */
 	@Test
-	public void testGetID() {
-		long id=document.getID();
-		System.out.println(id);
-		assertEquals((long)1<<40,id);
+	public void testAddStore_attribute() {
 	}
 
 	/**
-	 * Test method for {@link com.search.data.Document#getRanks()}.
+	 * Test method for {@link com.search.data.Document#getIndex_attribute(java.lang.String)}.
 	 */
 	@Test
-	public void testGetRanks() {
-		int rank=document.getRanks();
-		assertEquals(0, rank);
+	public void testGetIndex_attribute() {
 	}
 
 	/**
-	 * Test method for {@link com.search.data.Document#getAllAttributes()}.
+	 * Test method for {@link com.search.data.Document#getStore_attriubte(java.lang.String)}.
 	 */
 	@Test
-	public void testGetAllAttributes() {
-		document.addAttribute("keyword","niubaisui");
-		document.addAttribute("charset", "utf-8");
-		String charset=document.getAttribute("charset");
-		assertEquals("utf-8", charset);
-	}
-
-	/**
-	 * Test method for {@link com.search.data.Document#addAttribute(java.lang.String, java.lang.String)}.
-	 */
-	@Test
-	public void testAddAttribute() {
-	}
-
-	/**
-	 * Test method for {@link com.search.data.Document#getIndexcount(java.lang.String)}.
-	 */
-	@Test
-	public void testGetIndexcount() {
-		document.addAttribute("keyword", "niubaisui");
-		document.addAttribute("charset", "utf-8");
-		int indexcount=document.getIndexcount("charset");
-		assertEquals(2, indexcount);
-	}
-
-	/**
-	 * Test method for {@link com.search.data.Document#getAttribute(java.lang.String)}.
-	 */
-	@Test
-	public void testGetAttribute() {
-		document.addAttribute("description", "searchengine");
-		String value=document.getAttribute("description");
-		assertEquals("searchengine", value);
+	public void testGetStore_attriubte() {
 	}
 
 }

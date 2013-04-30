@@ -3,7 +3,6 @@
  */
 package com.search.index.test;
 
-import static org.junit.Assert.*;
 
 import java.util.LinkedList;
 
@@ -11,6 +10,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.search.data.Document;
@@ -46,18 +46,19 @@ public class SimpleMergeIndexTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		LinkedList<Document> documents=new LinkedList<Document>();
 		Document document1=new Document(1l);
-		document1.addAttribute("keyword", "niubaisui");
+		document1.addIndex_attribute("keyword", "了结");
 		Document document2=new Document(2l);
-		document2.addAttribute("keyword", "dongfangbubei");
+		document2.addIndex_attribute("keyword", "dongfangbubei");
 		Document document3=new Document(3l);
-		document3.addAttribute("keyword", "lejie");
+		document3.addIndex_attribute("keyword", "lejie");
 		Document document4=new Document(4l);
-		document4.addAttribute("keyword", "aiwo");
+		document4.addIndex_attribute("keyword", "aiwo");
 		Document document5=new Document(5l);
-		document5.addAttribute("keyword", "dongfangbubei guliang");
+		document5.addIndex_attribute("keyword", "dongfangbubei guliang");
 		Document document6=new Document(6l);
-		document6.addAttribute("keyword", "爱我");
+		document6.addIndex_attribute("keyword", "爱我");
 		
 		documents=new LinkedList<Document>();
 		documents.add(document1);

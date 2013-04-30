@@ -9,12 +9,15 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.search.DAO.CURD;
 import com.search.DAO.Connect;
 
 public class IndexThread extends Thread {
 	private LinkedList<Token_Structure> indexs;
-
+	private Logger logger=LogManager.getLogger("IndexThread");
 	public IndexThread(LinkedList<Token_Structure> indexs) {
 		this.indexs = indexs;
 	}
@@ -102,7 +105,7 @@ public class IndexThread extends Thread {
 				// 设置词条的unicode代码
 				Token_Structure index=iterator.next();
 				byte[] unicode = index.getTerm().getBytes();
-				String sql = this.SaveToken_sql(index.getSize());
+				String sql = this.SaveToken_sql(unicode.length);
 				CURD curd = new CURD();
 				Token_Structure updated_index = curd.selectIndex(index
 						.getTerm());
@@ -137,7 +140,8 @@ public class IndexThread extends Thread {
 					}
 					ByteArrayInputStream updated_bin = new ByteArrayInputStream(
 							selected_bout.toByteArray());
-					
+				
+					logger.info("update term="+index.getTerm()+" index");
 					stmt.setInt(1, updated_index.getFrequency());
 					stmt.setAsciiStream(2, updated_bin);
 					stmt.setString(3, term);
@@ -164,7 +168,8 @@ public class IndexThread extends Thread {
 					}
 					ByteArrayInputStream bin = new ByteArrayInputStream(
 							bout.toByteArray());
-										
+						
+					logger.info("writing term="+index.getTerm()+" index");
 					stmt.setInt(1, index.getFrequency());
 					stmt.setString(2, term);				
 					stmt.setAsciiStream(3, bin);

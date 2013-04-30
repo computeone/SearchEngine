@@ -48,7 +48,7 @@ public class SimpleBuildIndexTest {
 	@Before
 	public void setUp() throws Exception {
 		document=new Document(100l);
-		document.addAttribute("keyword", "东方不败是不会失败的");
+		document.addIndex_attribute("keyword", "东方不败是不会失败的");
 		simplebuildindex=new SimpleBuildIndex(document);
 	}
 

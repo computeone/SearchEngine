@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration status="OFF">
   <appenders>
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%d [%t] %C %-5level %line %msg %n"/>
+    <Console name="Console" target="SYSTEM_OUT" >
+      <PatternLayout charset="gb2312" pattern="%d [%t] %C %-5level %line %msg %n"/>
     </Console>
     <File name="log" fileName="target/niubaisui.log" append="true">
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5level %line %logger{36} - %msg%n"/>
+			<PatternLayout charset="gb2312" pattern="%d{ISO8601} [%t] %-5level %line %logger{36} - %msg%n"/>
 		</File>
 		<RollingFile name="rollingfile" fileName="rollinglog.log"
 			filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5level %line %logger{36} - %msg%n"/>	
+			<PatternLayout charset="gb2312" pattern="%d{ISO8601} [%t] %-5level %line %logger{36} - %msg%n"/>	
 			<SizeBasedTriggeringPolicy size="10kb"/>
 		</RollingFile>
   </appenders>

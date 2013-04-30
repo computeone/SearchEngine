@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Set;
 
 import com.search.analyzer.SimpleAnalyzer;
+import com.search.data.Attribute;
 import com.search.data.Field;
 import com.search.data.IDhandler;
 import com.search.data.Document;
@@ -55,16 +58,16 @@ public class SimpleBuildIndex implements BuildIndex{
 
 	// 将String的数据写到Field中
 	private void buildField() throws Exception {
-		if(document.getAttribute("keyword")!=null){
-			Field keyword=new Field(document.getAttribute("keyword"),id,
-				document.getIndexcount("keyword"));
-			fields.add(keyword);
+		
+		LinkedHashMap<String,Attribute> index_attributes=document.getIndex_attributes();
+		if(index_attributes.size()!=0){
+			Set<String> keys=index_attributes.keySet();
+			for(String s:keys){
+				Attribute attribute=index_attributes.get(s);
+				Field field=new Field(attribute.getValue(),id,attribute.getIndex());
+				fields.add(field);
+			}
 		}
-		if(document.getAttribute("description")!=null){
-			Field description=new Field(document.getAttribute("description"),
-				id,document.getIndexcount("description"));
-			fields.add(description);
-		}		
 		
 	}
 

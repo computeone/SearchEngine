@@ -76,7 +76,7 @@ public class HttpConnect {
 	 * 连接成功时，处理方法
 	 */
 	public void success() throws Exception {
-		httpconnect.setConnectTimeout(50);
+		httpconnect.setConnectTimeout(1000);
 		if (httpconnect.getResponseCode() == 301
 				|| httpconnect.getResponseCode() == 302) {
 			this.redirect();

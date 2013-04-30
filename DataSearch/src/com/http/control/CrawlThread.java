@@ -54,6 +54,8 @@ public class CrawlThread extends Thread {
 				htmldownload.setHttpresponseHeader(httpconnect.getHttpresponseheader());
 				htmldownload.setCrawlUrl(httpconnect.getCrawlurl());
 				htmldownload.download();
+				System.out.println("---------------------------");
+				htmldownload.printFile();
 				logger.exit("HtmlDownLoad");
 				//下载完成之后释放连接
 				httpconnect.releaseConnect();

@@ -8,7 +8,7 @@ import com.search.data.Document;
 import com.search.data.Field;
 import com.search.data.Token;
 /*
- * 将大量的索引合并有利于构建
+ * 将大量的索引合并有利于将索引写入数据库
  */
 public class SimpleMergeIndex {
 	private LinkedList<Document> documents=new LinkedList<Document>();
@@ -115,6 +115,7 @@ public class SimpleMergeIndex {
 			index.add(token.getID());
 			index_list.addLast(index);
 			int frequency = 1;// 设置词频
+			
 			while (!linkedList.isEmpty()
 					&& linkedList.peekFirst().getTerm().equals(token.getTerm())) {
 				index.add(linkedList.pollFirst().getID());

@@ -5,6 +5,7 @@ package com.http.connect.test;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -27,8 +28,9 @@ public class FileDownloadTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		HttpConnect httpconnect=new HttpConnect();
-		httpconnect.setUrl("http://hxx.suse.edu.cn");
+		httpconnect.setUrl("http://jcc.suse.edu.cn/");
 		httpconnect.Connect();
+		httpconnect.printFields();
 		filedownload=new FileDownload(httpconnect.getInputStream());
 		filedownload.setHttpresponseHeader(httpconnect.getHttpresponseheader());
 		filedownload.setCrawlUrl(httpconnect.getCrawlurl());
@@ -59,7 +61,7 @@ public class FileDownloadTest {
 	/**
 	 * Test method for {@link com.http.connect.FileDownload#getFileName()}.
 	 */
-	@Test
+	@Ignore
 	public void testGetFileName() {
 		String filename=filedownload.getFileName();
 		System.out.println("filename:"+filename);
@@ -77,7 +79,7 @@ public class FileDownloadTest {
 	/**
 	 * Test method for {@link com.http.connect.FileDownload#getEncoding()}.
 	 */
-	@Test
+	@Ignore
 	public void testGetEncoding() {
 		String encoding=filedownload.getEncoding();
 		System.out.println(encoding);

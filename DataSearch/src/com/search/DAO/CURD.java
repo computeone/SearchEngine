@@ -7,13 +7,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Set;
 
+import com.search.data.Attribute;
 import com.search.data.Document;
 import com.search.data.IDhandler;
 import com.search.index.Token_Structure;
@@ -77,20 +77,21 @@ public class CURD {
 	}
 
 	// 查询得到一系列Field的content
-	public String[] selectField(LinkedList<Long> id) throws Exception,
+	public LinkedList<String> selectField(LinkedList<Long> id) throws Exception,
 			SQLException {
 		Connection con = Connect.getConnection();
 		Statement stmt = con.createStatement();
 		Iterator<Long> iterator = id.iterator();
-		String[] str = new String[id.size()];
-		int i = -1;
+		LinkedList<String> str=new LinkedList<String>();
+		
+		//
 		while (iterator.hasNext()) {
 			IDhandler idhandler = new IDhandler(iterator.next());
 			String sql = "select priority,content from Field where id='"
 					+ idhandler.getField_id()+ "'";
 			ResultSet resultset = stmt.executeQuery(sql);
 			while (resultset.next()) {
-				str[++i] = resultset.getString("content");
+				str.add(resultset.getString("content"));
 			}
 		}
 		con.close();
@@ -125,22 +126,33 @@ public class CURD {
 			while(result.next()){
 				Document document=new Document(result.getLong("id"));
 				//反序列化attributes
-				ByteArrayInputStream attributes_in=new ByteArrayInputStream(result.getBytes("attributes"));
+				ByteArrayInputStream attributes_in=new ByteArrayInputStream(result.getBytes("store_attributes"));
 				ObjectInputStream attributes_object=new ObjectInputStream(attributes_in);
 				@SuppressWarnings("unchecked")
 				HashMap<String,String> attributes=(HashMap<String,String>)attributes_object.readObject();
 				
 				//反序列化index_number
-				ByteArrayInputStream indexnumber_in=new ByteArrayInputStream(result.getBytes("index_number"));
+				ByteArrayInputStream indexnumber_in=new ByteArrayInputStream(result.getBytes("index_attributes"));
 				ObjectInputStream indexnumber_object=new ObjectInputStream(indexnumber_in);
 				@SuppressWarnings("unchecked")
-				HashMap<String,Integer> index_number=(HashMap<String,Integer>)indexnumber_object.readObject();
+				LinkedHashMap<String,Attribute> index_attributes=(LinkedHashMap<String,Attribute>)indexnumber_object.readObject();
 				
 
 				document.setRanks(result.getInt("rank"));
 				document.setDate(result.getTimestamp("create_date"));
-				document.setAttributes(attributes);
-				document.setIndex_number(index_number);
+				
+				//添加store_attribute
+				Set<String> keys=attributes.keySet();
+				for(String key:keys){
+					document.addStore_attribute(key, attributes.get(key));
+				}
+				
+				//添加index_attribute
+				Set<String>  index_keys=index_attributes.keySet();
+				for(String key:index_keys){
+					document.addIndex_attribute(key, index_attributes.get(key).getValue());
+				}
+				
 				documents.add(document);
 			}
 			

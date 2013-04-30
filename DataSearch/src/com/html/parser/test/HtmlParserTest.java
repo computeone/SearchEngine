@@ -79,7 +79,7 @@ public class HtmlParserTest {
 		Document document=parser.getDocument();
 		System.out.println(document.getID());
 		System.out.println(document.getDate());
-		System.out.println(document.getAttribute("title"));
+//		System.out.println(document.getAttribute("title"));
 		System.out.println("---------------------------");
 		for(String link:links){
 			System.out.println(link);
