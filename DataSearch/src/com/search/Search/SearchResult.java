@@ -6,40 +6,38 @@ import com.search.data.Field;
  * 搜索得到的结果
  */
 public class SearchResult {
-	private Field field;
 	private String url;
-	private long id;
-	private String term;
+	private int rank;
+	private String content;
 	
-	public SearchResult(Field field, String url) {
-		this.field = field;
+	public SearchResult(String url,int rank,String content) {
+		this.url=url;
+		this.rank=rank;
+		this.content=content;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
 		this.url = url;
 	}
 
-	public void setTerm(String term){
-		this.term=term;
+	public int getRank() {
+		return rank;
 	}
-	public String getTerm(){
-		return this.term;
-	}
-	public void setID(long id){
-		this.id=id;
-	}
-	public long getID(){
-		return id;
-	}
-	public void setPriority(int priority){
-		this.field.setPriority(priority);
-	}
-	public int getPriority() {
-		return field.getPriority();
+
+	public void setRank(int rank) {
+		this.rank = rank;
 	}
 
 	public String getContent() {
-		return field.getText();
+		return content;
 	}
 
-	public String getURL() {
-		return url;
+	public void setContent(String content) {
+		this.content = content;
 	}
+
 }

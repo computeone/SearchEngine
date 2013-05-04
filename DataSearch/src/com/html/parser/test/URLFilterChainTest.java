@@ -63,7 +63,7 @@ public class URLFilterChainTest {
 	 */
 	@Test
 	public void testFilter() {
-		String str="http://www.suse.edu.cn/qjmy/hd/index.html";
+		String str="http://www.suse.edu.cn";
 		SuseURLFilter suse=new SuseURLFilter();
 		chain.addFilter(suse);
 		assertTrue(chain.filter(str));

@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -99,32 +100,63 @@ public class CURD {
 	}
 
 	// 查询得到Document
-	public String selectDocument(long id) throws Exception, SQLException {
+	public Document selectDocument(long id) throws Exception, SQLException {
 		Connection con = Connect.getConnection();
 		Statement stmt = con.createStatement();
-		String sql = "select content from Document where id='" + id + "'";
+		String sql = "select * from Document where id='" + id + "'";
 		ResultSet resultset = stmt.executeQuery(sql);
-		String content = resultset.getString("content");
+		long document_id=resultset.getLong("id");
+		Document document=new Document(document_id);
+		Timestamp time=resultset.getTimestamp("create_date");
+		int ranks=resultset.getInt("ranks");
+		//反序列化
+		ByteArrayInputStream store_in=new ByteArrayInputStream(resultset.getBytes("store_attributes"));
+		ObjectInputStream store_object=new ObjectInputStream(store_in);
+		@SuppressWarnings("unchecked")
+		HashMap<String,String>  store_attributes=(HashMap<String, String>) store_object.readObject();
+		
+		//反序列化
+		ByteArrayInputStream index_in=new ByteArrayInputStream(resultset.getBytes("index_attributes"));
+		ObjectInputStream index_object=new ObjectInputStream(index_in);
+		@SuppressWarnings("unchecked")
+		LinkedHashMap<String,Attribute>  index_attributes=(LinkedHashMap<String, Attribute>) index_object.readObject();
+		
+		//设置相应的值
+		document.setDate(time);
+		document.setRanks(ranks);
+		
+		//
+		Set<String> store_keys=store_attributes.keySet();
+		for(String key:store_keys){
+			document.addStore_attribute(key, store_attributes.get(key));
+		}
+		
+		Set<String> index_keys=index_attributes.keySet();
+		for(String key:index_keys){
+			document.addIndex_attribute(key,index_attributes.get(key).getKey());
+		}
 		con.close();
-		return content;
+		return document;
 	}
 	
 	//查询得到一系列Document
 	public LinkedList<Document> selectDocuments(LinkedList<Long> ids) throws Exception,SQLException{
 		Connection con=Connect.getConnection();
 		LinkedList<Document> documents=new LinkedList<Document>();
-		Statement stmt=con.createStatement();
+		String sql="select * from Document where id=?";
 		Iterator<Long> iterator=ids.iterator();
 		
 		while(iterator.hasNext()){
-			long id=iterator.next();
-			String sql="select * from Document where id'"+id+"'";
-			stmt.executeQuery(sql);
+			PreparedStatement stmt=con.prepareStatement(sql);
+			long id=iterator.next();			
+			stmt.setLong(1,id);
+			stmt.execute();
+			
 			
 			ResultSet result=stmt.getResultSet();
 			//反序列化
 			while(result.next()){
-				Document document=new Document(result.getLong("id"));
+				Document document=new Document(result.getLong("id")>>40);
 				//反序列化attributes
 				ByteArrayInputStream attributes_in=new ByteArrayInputStream(result.getBytes("store_attributes"));
 				ObjectInputStream attributes_object=new ObjectInputStream(attributes_in);
@@ -154,11 +186,10 @@ public class CURD {
 				}
 				
 				documents.add(document);
-			}
-			
+			}		
 			
 		}
-		return null;
+		return documents;
 	}
 
 }

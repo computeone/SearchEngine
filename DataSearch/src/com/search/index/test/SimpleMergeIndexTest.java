@@ -56,9 +56,9 @@ public class SimpleMergeIndexTest {
 		Document document4=new Document(4l);
 		document4.addIndex_attribute("keyword", "aiwo");
 		Document document5=new Document(5l);
-		document5.addIndex_attribute("keyword", "dongfangbubei guliang");
+		document5.addIndex_attribute("keyword", "dongfangbubei guliang dongfangbubei");
 		Document document6=new Document(6l);
-		document6.addIndex_attribute("keyword", "°®ÎÒ");
+		document6.addIndex_attribute("keyword", "dongfangbubei °®ÎÒ");
 		
 		documents=new LinkedList<Document>();
 		documents.add(document1);
@@ -102,13 +102,14 @@ public class SimpleMergeIndexTest {
 	 * Test method for {@link com.search.index.SimpleMergeIndex#getField()}.
 	 * @throws Exception 
 	 */
-	@Test
+	@Ignore
 	public void testGetField() throws Exception {
 		simplemergeindex.mergeIndex();
 		LinkedList<Field> fields=simplemergeindex.getField();
 		for(Field f:fields){
 			System.out.println(f.getID());
 			System.out.println(f.getText());
+			System.out.println("---------------------");
 		}
 		
 	}
@@ -127,6 +128,7 @@ public class SimpleMergeIndexTest {
 			for(long n:s.getTokens_id()){
 				System.out.println(n);
 			}
+			System.out.println("-----------------------");
 		}
 	}
 

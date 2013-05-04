@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.http.Search.BreadthFirstTraversal;
 import com.http.Search.CrawlUrl;
 import com.http.constant.HttpResponseHeaderConstant;
 
@@ -23,7 +24,6 @@ import com.http.constant.HttpResponseHeaderConstant;
  * HTTP连接主要的类
  */
 public class HttpConnect {
-	private String url;// 网络资源的URL
 	private CrawlUrl crawlurl;//抓取到的URL 
 	private InputStream in;//网络输出入流
 	private OutputStream out;//网络输出流
@@ -32,19 +32,13 @@ public class HttpConnect {
 	private HttpResponseHeader httpresponseheader;//http答复头
 	private HttpURLConnection httpconnect;
 	private Logger logger = LogManager.getLogger("HttpConnect");
-	private Map<String,String> header=new HashMap<String,String>();
 	public CrawlUrl getCrawlurl() {
 		return crawlurl;
 	}
 
-	public String getUrl() {
-		return url;
+	public void setCrawlUrl(CrawlUrl crawlurl){
+		this.crawlurl=crawlurl;
 	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
 	public InputStream getInputStream() {
 		return this.in;
 	}
@@ -63,46 +57,76 @@ public class HttpConnect {
 	public HttpResponseHeader getHttpresponseheader() {
 		return httpresponseheader;
 	}
-	private void setHttpResponseHeader(Map<String,String> header){
+	//
+	private void setHttpResponseHeader(Map<String,List<String>> header){
 		Set<String> keyset=header.keySet();
 		for(String key:keyset){
-			this.setEntry(key, header.get(key));
+			
+			
+			if(key==null){
+				continue;
+			}
+			
+			//设置content-Type
+			if(key.equals("Content-Type")){
+				List<String> content_type=header.get(key);
+				String document_type=content_type.get(0);
+				if(document_type!=null){
+					String[] str=document_type.split(";");
+					if(str.length>1){
+						httpresponseheader.setContent_Type(str[0]);
+						httpresponseheader.setContent_Encoding(str[1].substring(9, str[1].length()));
+					}
+					else{
+						if(str[0].contains("charset=")){
+							httpresponseheader.setContent_Encoding(str[0].substring(9, str[0].length()));
+						}
+						else{
+							httpresponseheader.setContent_Type(str[0]);
+						}
+					}
+				}
+			}
+			//
+			else if(key.equals("Last-Modified")){
+				httpresponseheader.setLast_modefied(header.get(key).get(0));
+			}
+			//
+			else if(key.equals("Content-Location")){
+				httpresponseheader.setLocation(header.get(key).get(0));
+			}
+			//
+			else if(key.equals("Date")){
+				
+			}
 		}
 	}
-	public HttpConnect() {
+	
+	public HttpConnect(){
 		
+	}
+	public HttpConnect(CrawlUrl crawlurl) {
+		this.crawlurl=crawlurl;
 	}
 	/*
 	 * 连接成功时，处理方法
 	 */
 	public void success() throws Exception {
-		httpconnect.setConnectTimeout(1000);
 		if (httpconnect.getResponseCode() == 301
 				|| httpconnect.getResponseCode() == 302) {
-			this.redirect();
+//			this.redirect();
+			logger.info("访问失败URL:"+crawlurl.getOriUrl());
 		}
 		else{
 			in = httpconnect.getInputStream();
 			fields = httpconnect.getHeaderFields();
-			//解析头
-			int i=0;
-			while(true){
-				String key=httpconnect.getHeaderFieldKey(i);
-				String value=httpconnect.getHeaderField(i);
-				if(i==0){
-					header.put("statuscode", value);
-					i++;
-					continue;
-				}
-				if(key==null){
-					break;
-				}
-				header.put(key, value);
-				i++;
-			}
+			
+			
+			//设置httpresponseheader和crawlurl
 			httpresponseheader = new HttpResponseHeader();
-			this.setHttpResponseHeader(header);
-			this.setCrawlUrl();			
+			this.setHttpResponseHeader(fields);
+			this.setCrawlUrl();	
+			logger.info("成功访问了URL："+crawlurl.getOriUrl());
 		}
 		
 	}
@@ -111,6 +135,7 @@ public class HttpConnect {
 	 * 丢弃连接
 	 */
 	public void discard() throws Exception {
+		logger.info("访问失败URL:"+crawlurl.getOriUrl());
 		throw new Exception();
 	}
 
@@ -118,23 +143,30 @@ public class HttpConnect {
 	 * 重定向连接
 	 */
 	public void redirect() throws Exception {
+		logger.info("重定向URL:"+crawlurl.getOriUrl());
 		String redirecturl = this.getHttpresponseheader().getLocation();
-		this.setUrl(redirecturl);
+		crawlurl.setOriUrl(redirecturl);
 		Connect();
 	}
 	/*
 	 * 连接的主要方法
 	 */
 	public void Connect() throws Exception {
+		
+		//访问过的，加入visitiedurl表中
+		logger.info("加入VistiedUrl表中URL:"+crawlurl.getOriUrl());
+		BreadthFirstTraversal.add_known_URLVisited(crawlurl);
+		
 		SimpleHttpURLParser httpparser = new SimpleHttpURLParser();
-		boolean result = httpparser.vertifyURL(url);
-		logger.info(url);
+		boolean result = httpparser.vertifyURL(crawlurl.getOriUrl());
+		logger.info("连接到url:"+crawlurl.getOriUrl());
 		if (!result) {
 			throw new IOException();
 		}
 		
-		URL urlconnect = new URL(url);
+		URL urlconnect = new URL(crawlurl.getOriUrl());
 		httpconnect = (HttpURLConnection) urlconnect.openConnection();
+//		httpconnect.setConnectTimeout(100);
 		if(httpconnect!=null){
 			success();
 		}
@@ -149,69 +181,31 @@ public class HttpConnect {
 	}
 
 	private void setCrawlUrl(){
-		crawlurl=new CrawlUrl();
-		crawlurl.setPriority(0);
-		crawlurl.setOriUrl(url);
 		crawlurl.setLastUpdateTime(new Timestamp(Calendar.getInstance().getTimeInMillis()));
-		crawlurl.setCharSet("utf-8");
+		this.setEncoding();
+		this.setContentType();
+		logger.info("encoding:"+crawlurl.getCharSet());
 	}
-	private void setEntry(String key,String value) {
-		if (key == null) {
-			return;
-		}
-		switch (key) {
-		case HttpResponseHeaderConstant.Date:
-			httpresponseheader.setDate(value);
-			break;
-		case HttpResponseHeaderConstant.Upgrade:
-			httpresponseheader.setUpgrade(value);
-			break;
-		case HttpResponseHeaderConstant.Set_Cookie:
-			httpresponseheader.setSet_Cookie(value);
-		case HttpResponseHeaderConstant.Server:
-			httpresponseheader.setServer(value);
-			break;
-		case HttpResponseHeaderConstant.Location:
-			httpresponseheader.setLocation(value);
-			break;
-		case HttpResponseHeaderConstant.Last_modefied:
-			httpresponseheader.setLast_modefied(value);
-			break;
-		case HttpResponseHeaderConstant.Content_Type:
-			httpresponseheader.setContent_Type(value);
-			break;
-		case HttpResponseHeaderConstant.Content_Length:
-			httpresponseheader.setContent_Length(value);
-			break;
-		case HttpResponseHeaderConstant.Content_Language:
-			httpresponseheader.setContent_Language(value);
-			break;
-		case HttpResponseHeaderConstant.Content_Encoding:
-			httpresponseheader.setContent_Encoding(value);
-			break;
-		case HttpResponseHeaderConstant.Accept_Ranges:
-			httpresponseheader.setAccept_Ranges(value);
-			break;
-		default:
-		}
+	
+	//设置文档类型
+	private void setContentType(){
+		crawlurl.setType(httpresponseheader.getContent_Type());
 	}
-
+	
+	//设置文档编码类型
+	private void setEncoding() {
+		crawlurl.setCharSet(httpresponseheader.getContent_Encoding());
+	}
 	public void printFields() throws IOException {
 		// 解析http的头数据
-		Set<Map.Entry<String, List<String>>> entryset = fields.entrySet();
-		Iterator<Map.Entry<String, List<String>>> iterator = entryset
-				.iterator();
-		System.out.println("http header fields:");
-		System.out.println();
-		while (iterator.hasNext()) {
-			Map.Entry<String, List<String>> map = iterator.next();
-			System.out.print(map.getKey() + ":");
-			List<String> value = map.getValue();
-			Iterator<String> valueiterator = value.iterator();
-			while (valueiterator.hasNext()) {
-				System.out.print(valueiterator.next() + "  ");
+		System.out.println("Http Header:");
+		Set<String> keys=fields.keySet();
+		for(String key:keys){
+			List<String> list=fields.get(key);
+			System.out.println(key+":");
+			for(String s:list){
+				System.out.println("   "+s);
 			}
-			System.out.println();
 		}
 	}
 }

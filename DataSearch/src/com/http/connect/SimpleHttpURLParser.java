@@ -7,7 +7,7 @@ public class SimpleHttpURLParser implements HttpURLParser {
 	private String url;
 	private static String regex = "\\Ahttps?://(([\\w+\\.]+)(:\\d{1,5})?/{0,1}(.*)?)\\Z";
 	private static String regexpath = "/";
-	private static String illegalcharacter = "[\\<>:%*|&?]";
+	private static String illegalcharacter = "[\\<>:%*/|&?\\s]";
 	private Pattern pattern;
 
 	public SimpleHttpURLParser() {
@@ -33,7 +33,7 @@ public class SimpleHttpURLParser implements HttpURLParser {
 	 * www.baidu.com¡¢80¡¢index.html
 	 */
 	public String[] parserURL(String url){
-		pattern = Pattern.compile(regex);
+		pattern = Pattern.compile(regex,Pattern.DOTALL);
 		Matcher matcher = pattern.matcher(url);
 		
 		if(matcher.matches()){			
@@ -49,7 +49,7 @@ public class SimpleHttpURLParser implements HttpURLParser {
 	}
 
 	public boolean vertifyURL(String url) throws IllegalStateException {
-		pattern = Pattern.compile(regex);
+		pattern = Pattern.compile(regex,Pattern.DOTALL);
 		if (url != null) {
 			boolean result = pattern.matcher(url).matches();
 			return result;
@@ -58,13 +58,13 @@ public class SimpleHttpURLParser implements HttpURLParser {
 	}
 
 	public String[] parserPath(String path) {
-		pattern = Pattern.compile(regexpath);
+		pattern = Pattern.compile(regexpath,Pattern.DOTALL);
 		String[] result = pattern.split(path);
 		return result;
 	}
 
 	public String deleteIllegalChar(String str) {
-		pattern = Pattern.compile(illegalcharacter);
+		pattern = Pattern.compile(illegalcharacter,Pattern.DOTALL);
 		Matcher matcher = pattern.matcher(str);
 		str = matcher.replaceAll("_").trim();
 		return str;

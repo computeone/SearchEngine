@@ -1,6 +1,7 @@
 package com.http.control;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -39,28 +40,53 @@ public class CrawlWebCentralThread {
 	}
 
 	//将Document写入数据库
-	public static void writeWebPage() {
-		try {
-			String path = "d:\\search";
+	public  void writeWebPage() throws IOException {
+		String path = "d:\\search";
+		File dir=new File(path);
+		dir.mkdir();
+		File file = new File(path, "documents.datafile");
+		file.createNewFile();
+		FileOutputStream fileout = new FileOutputStream(file);	
 			while (webpages.hasNext()) {
-				Document document = webpages.nextDocument();
-				File file = new File(path, "datafile" + document.getID());
-				FileOutputStream fileout = new FileOutputStream(file);			
+				Document document = webpages.nextDocument();							
 				fileout.write("url:".getBytes());
+				fileout.write(document.getStore_attriubte("url").getBytes());
+				fileout.write("\n".getBytes());
+				fileout.write("ID:".getBytes());
 				fileout.write(String.valueOf(document.getID()).getBytes());
 				fileout.write("\n".getBytes());
-				fileout.write("keyword".getBytes());
-//				fileout.write(document.getDate().getBytes());
-//				fileout.write("\n".getBytes());
-//				fileout.write("title".getBytes());
-//				fileout.write(document.getTitle().getBytes());
-//				fileout.write("\n".getBytes());
-				fileout.close();
-				filenumber++;
+				
+				//
+				fileout.write("title:".getBytes());				
+				if(document.getIndex_attribute("title")!=null){
+					fileout.write(document.getIndex_attribute("title").getBytes());
+				}
+				else{
+					fileout.write("null".getBytes());
+				}
+				fileout.write("\n".getBytes());
+			//写keyword
+				fileout.write("keywords".getBytes());
+				if(document.getIndex_attribute("keywords")!=null){
+					fileout.write(document.getIndex_count("keywords"));
+				}			
+				else{
+					fileout.write("null".getBytes());
+				}
+				fileout.write("\n".getBytes());
+				
+				//
+				fileout.write("description:".getBytes());
+				if(document.getIndex_attribute("description")!=null){
+					fileout.write(document.getIndex_attribute("description").getBytes());					
+				}
+				else{
+					fileout.write("null".getBytes());
+				}
+				fileout.write("\n".getBytes());
+				fileout.write("----------------------------------------".getBytes());
 			}
-		} catch (IOException e) {
-			System.out.println("writefile default!");
-		}
+			fileout.close();
 	}
 
 	protected CrawlWebCentralThread() {
@@ -99,13 +125,12 @@ public class CrawlWebCentralThread {
 		CrawlUrl crawlurl=new CrawlUrl();
 		crawlurl.setOriUrl(url);
 		crawlurl.setPriority(0);
+		crawlurl.setLayer(0);
 		initurl[0]=crawlurl;
 		String rootdir = "d:\\spider";
 		
 		CrawlWebCentralThread.rootdir = rootdir;
 		webcontrol.Init(initurl);
-		File file = new File("d:\\datafile");
-		file.mkdir();
 		
 		/*
 		 * 爬行线程数量策略
@@ -115,20 +140,24 @@ public class CrawlWebCentralThread {
 			logger.debug("httpconnectpoolsize:"+webcontrol.httpconnectpool.getPOOLSIZE());
 			System.out.println("未访问的："+BreadthFirstTraversal.getUNVisitedURL_Size());
 			System.out.println("活动的线程数:"+webcontrol.pool.getActiveCount());
-//			if (BreadthFirstTraversal.getUNVisitedURL_Size()> 10 * webcontrol.pool
-//					.getActiveCount()
-//					&& webcontrol.pool.getActiveCount() < 25) {
-//
-//				CrawlUrl new_crawlurl = BreadthFirstTraversal
-//						.getUNVisitedURL();
-//
-//				webcontrol.pool.execute(new CrawlThread(new_crawlurl));
-//				logger.info("Active Thread :"
-//						+ webcontrol.pool.getActiveCount());
-//			}
+			if (BreadthFirstTraversal.getUNVisitedURL_Size()> 100 * webcontrol.pool
+					.getActiveCount()
+					&& webcontrol.pool.getActiveCount() < 10) {
+
+				CrawlUrl new_crawlurl = BreadthFirstTraversal
+						.getUNVisitedURL();
+
+				webcontrol.pool.execute(new CrawlThread(new_crawlurl));
+				logger.info("Active Thread :"
+						+ webcontrol.pool.getActiveCount());
+			}
 //			CrawlWebCentralThread.writeWebPage();
+			
+			//最后将得到documents写入文件中
+			
 			try {
-				Thread.sleep(100);
+				Thread.sleep(1000);
+				webcontrol.writeWebPage();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -70,7 +70,7 @@ public class BreadthFirstTraversal{
 		try {
 			url = unvisitedUrl.getURL();
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		}
 		return url;
 	}

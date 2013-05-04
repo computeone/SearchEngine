@@ -47,8 +47,8 @@ public class SimpleBuildIndexTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		document=new Document(100l);
-		document.addIndex_attribute("keyword", "东方不败是不会失败的");
+		document=new Document(2l);
+		document.addIndex_attribute("keywords", "dongfangbubei");
 		simplebuildindex=new SimpleBuildIndex(document);
 	}
 
@@ -116,6 +116,7 @@ public class SimpleBuildIndexTest {
 			System.out.println(idhandler.getCurrent_Token_id());
 			System.out.println(t.getTerm());
 		}
+		System.out.println("-----------------------------");
 	}
 
 	/**

@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,57 +15,47 @@ import com.search.DAO.Connect;
  * 一般用法见FileDownloadTest
  */
 public class FileDownload {
-	private String url;
+	
+	//绝对路径表示为rootdir+host+path
 	private File file;
-	private String filename;
 	private CrawlUrl crawlurl;
 	private Logger logger = LogManager.getLogger("HtmlDownload");
 	private String host;// 主机 如:www.baidu.com/index 则host为www.baidu.com
-	private String dir;// 目录 路径 如：www.baidu.com/index/index.html 则default_filename为index/index.html
+	private String path;// 目录 路径 如：www.baidu.com/index/index.html 则default_filename为index/index.html
 	private String rootdir="d:\\spider";// 根目录
 	private String encoding="utf-8";// 编码
 	private InputStream in;
-	private HttpResponseHeader httpresponseheader;// 包含响应头信息
 
 	// 构造方法
 	public FileDownload( InputStream in) {
 		this.in = in;
 	}
 	
-	public FileDownload(InputStream in,Connect connect){
+	public FileDownload(InputStream in,CrawlUrl crawlurl){
 		this.in=in;
+		this.crawlurl=crawlurl;
 	}
+	
 	
 	public File getFile(){
 		return file;
 	}
 	
-	public void setUrl(String url){
-		this.url=url;
-	}
+	
 	public void setCrawlUrl(CrawlUrl crawlurl){
 		this.crawlurl=crawlurl;
-		this.setUrl(crawlurl.getOriUrl());
 	}
 	
 	public CrawlUrl getCrawlUrl(){
 		return crawlurl;
 	}
-	public void setHttpresponseHeader(HttpResponseHeader httpresponseheader){
-		this.httpresponseheader=httpresponseheader;
-		this.setEncoding();
-	}
 	
 	public FileDownload(Connect connect){
 		//undo
 	}
-
-	public String getFileName() {
-		return filename;
-	}
 	
 	public String getAbsolutePath(){
-		return rootdir+"/"+host+"/"+dir;
+		return rootdir+"/"+host+"/"+path;
 	}
 
 	public String getEncoding() {
@@ -76,60 +65,39 @@ public class FileDownload {
 	/*
 	 * 得到文档的编码
 	 */
-	protected void setEncoding() {
-		
-		if(httpresponseheader==null){
-			encoding="utf-8";
-			return;
-		}
-		if (httpresponseheader.getContent_Encoding()==null) {
-			if(httpresponseheader.getContent_Type()!=null){
-				String str=httpresponseheader.getContent_Type();
-				String[] s=str.split(";");
-				for(String ss:s){
-					if(ss.contains("charset=")){
-						encoding=ss.substring(8);
-						break;
-					}
-				}
-				encoding="utf-8";
-			}
-		} else {
-			encoding = httpresponseheader.getContent_Encoding();
-		}
-	}
-
-	// 解析URL
+	
+	// 解析URL result[2]=host result[4]=path
 	public String[] parseURL() {
 		SimpleHttpURLParser urlparser = new SimpleHttpURLParser();
-		String result[] = urlparser.parserURL(url);
+		String result[] = urlparser.parserURL(crawlurl.getOriUrl());
 		this.host = result[2];
-		if (result[3]==null&&result[1].equals(result[2])) {
-			dir= "index.html";
+		this.path =result[4];
+		String[] dirs=null;
+		
+		//如果符合下面条件返回null
+		if(path==null){
+			return dirs;
 		}
-		else if(result[4]==null){
-			dir="index.html";
-		}else {
-			this.dir = result[4];
+		if(path.equals("")){
+			return dirs;
 		}
-		String[] dirs = urlparser.parserPath(dir);
+		else {
+			dirs = urlparser.parserPath(path);
+		}
 		return dirs;
 	}
 	//判断这个网页是不是需要下载
 	public boolean isParser() {
 
 		//通过判断返回的文档的类型来判断
-		if (httpresponseheader == null||httpresponseheader.getContent_Type().isEmpty()) {
+		if(crawlurl.getType()==null){
 			return true;
 		}
-		else {		
-			boolean result = Pattern.matches(".*text/html.*",
-				httpresponseheader.getContent_Type());
-			if (result) {
-				return true;
-			} else {
-				return false;
-			}
+		else if (crawlurl.getType().equals("text/html")) {
+			return true;
+		}
+		else{
+			return false;
 		}
 	}
 
@@ -137,31 +105,45 @@ public class FileDownload {
 	 * 文件下载的主要方法
 	 */
 	public void download() throws Exception {
-		String[] dir = this.parseURL();// 解析url
+		logger.info("encoding:"+crawlurl.getCharSet());
+		logger.info("文档类型:"+crawlurl.getType());
+		String[] dirs = this.parseURL();// 解析url
 		SimpleHttpURLParser dirparser = new SimpleHttpURLParser();
-		// 检查是不是含有非法字符
-		for (int i = 0; i < dir.length; i++) {
-			dir[i] = dirparser.deleteIllegalChar(dir[i]);
-			//长度超过256则截断
-			if (dir[i].length() > 256) {
-				dir[i] = dir[i].substring(0, 256);
-			}
-		}
-		// 创建相应的目录
+		
+		
+		
+		
 		File hostdir = new File(rootdir + "/" + host);
-		boolean result = hostdir.mkdirs();
+		hostdir.mkdirs();
 		String currentdir = rootdir + "/" + host;
-		if (!result) {
-			logger.info("The Dir Exist");
+		String filename=null;
+		if(dirs==null){
+			filename="index.html";
 		}
-		for (int i = 0; i < dir.length - 1; i++) {
-			File tempdir = new File(currentdir, dir[i]);
-			tempdir.mkdir();
-			currentdir = currentdir + "/" + dir[i];
+		else{
+			// 检查是不是含有非法字符
+			for (int i = 0; i < dirs.length; i++) {
+				dirs[i] = dirparser.deleteIllegalChar(dirs[i]);
+				//长度超过256则截断
+				if (dirs[i].length() > 256) {
+					dirs[i] = dirs[i].substring(0, 256);
+				}
+			}
+			// 创建相应的目录
+			for (int i = 0; i < dirs.length - 1; i++) {
+				File tempdir = new File(currentdir, dirs[i]);
+				tempdir.mkdir();
+				currentdir = currentdir + "/" + dirs[i];
+			}
+			filename=dirs[dirs.length-1];
 		}
+			
 		// 写到相应的文件中
-		filename=dir[dir.length-1];
 		file = new File(currentdir+"/"+filename);
+		logger.info("下载文件绝对路径:"+file.getAbsolutePath());
+		
+		
+		//写文件
 		FileOutputStream fout = new FileOutputStream(file);
 		int ch;
 		while ((ch = in.read()) != -1) {
@@ -174,7 +156,6 @@ public class FileDownload {
 	
 	// 打印文件
 	public void printFile() throws Exception {
-		File file=new File(this.getAbsolutePath());
 		FileInputStream in = new FileInputStream(file);
 		InputStreamReader reader = new InputStreamReader(in, encoding);
 		int ch;

@@ -38,10 +38,11 @@ public class CrawlThread extends Thread {
 		while (crawlurl!= null) {
 			try {
 				logger.info("Task url:" + crawlurl.getOriUrl());
+				logger.info("层数:"+crawlurl.getLayer());
 				logger.entry("httpconnect");
 				// 创建连接
 				httpconnect = HttpConnectPool.getHttpConnect();
-				httpconnect.setUrl(crawlurl.getOriUrl());
+				httpconnect.setCrawlUrl(crawlurl);
 				// 建立连接
 				httpconnect.Connect();
 				httpconnect.printFields();
@@ -51,7 +52,6 @@ public class CrawlThread extends Thread {
 				logger.entry("HtmlDownLoad");
 				FileDownload htmldownload = new FileDownload(
 						httpconnect.getInputStream());
-				htmldownload.setHttpresponseHeader(httpconnect.getHttpresponseheader());
 				htmldownload.setCrawlUrl(httpconnect.getCrawlurl());
 				htmldownload.download();
 				System.out.println("---------------------------");
@@ -68,12 +68,13 @@ public class CrawlThread extends Thread {
 				
 				
 				// 解析html文件
-				logger.entry("HtmlParser");
+				
 				logger.debug("parser:"+htmldownload.isParser());
 								
 				//判断是不是可以解析的
 				if (htmldownload.isParser()) {
-				
+					
+					logger.entry("HtmlParser");
 					DocumentParser htmlparser = new HtmlParser(htmldownload.getFile(),htmldownload.getCrawlUrl());
 									
 					// 将解析出来的URL添加进todo列表
@@ -92,11 +93,14 @@ public class CrawlThread extends Thread {
 				// 取出来一个优先级最高的url，添加到visitedurl中
 				CrawlUrl new_crawlurl= BreadthFirstTraversal
 						.getUNVisitedURL();
+								
 				if (new_crawlurl!=null) {
 					crawlurl=new_crawlurl;
 				} else {
 					crawlurl = null;
 				}
+				logger.info("新的CrawlUrl:"+crawlurl.getOriUrl());
+				logger.info("----------------------------------------------");
 
 			} catch (Exception e) {
 				//如果没有http连接了睡眠等待100ms
@@ -105,6 +109,7 @@ public class CrawlThread extends Thread {
 						Thread.sleep(100);
 					} catch (InterruptedException e1) {
 						logger.fatal("fatal error! Thread Sleep default!");
+						logger.info("------------------------------------------");
 					}
 					continue;
 				}
@@ -117,7 +122,9 @@ public class CrawlThread extends Thread {
 				} else {
 					crawlurl = null;
 				}
+				logger.info("新的CrawlUrl:"+crawlurl.getOriUrl());
 				logger.fatal("Connect Default! or Download default!");
+				logger.info("-----------------------------------------------");
 			}
 		}
 	}

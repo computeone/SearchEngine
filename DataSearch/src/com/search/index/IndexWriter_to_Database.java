@@ -30,8 +30,7 @@ public class IndexWriter_to_Database implements IndexWriter{
 		//document_thread线程数最大为5
 		if(count>5){
 			count=5;
-		}
-		
+		}		
 		//
 		if(size%100!=0){
 			count++;

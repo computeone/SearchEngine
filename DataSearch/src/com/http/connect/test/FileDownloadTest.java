@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.http.Search.CrawlUrl;
 import com.http.connect.FileDownload;
 import com.http.connect.HttpConnect;
 
@@ -27,12 +28,19 @@ public class FileDownloadTest {
 	private static FileDownload filedownload;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		HttpConnect httpconnect=new HttpConnect();
-		httpconnect.setUrl("http://jcc.suse.edu.cn/");
+		String[] url=new String[5];
+		url[0]="http://www.suse.edu.cn";
+		url[1]="http://bc.ifeng.com/main/c?db=ifeng&bid=18587,18272," +
+				"3995&cid=2268,46,1&sid=38519&advid=548&camid=4114&show" +
+				"=ignore&url=http://www.533.com/hfsxy1/";
+		CrawlUrl crawlurl=new CrawlUrl();
+		crawlurl.setOriUrl(url[0]);
+		crawlurl.setLayer(1);
+		HttpConnect httpconnect=new HttpConnect(crawlurl);
 		httpconnect.Connect();
 		httpconnect.printFields();
+		System.out.println(httpconnect.getCrawlurl().getOriUrl());
 		filedownload=new FileDownload(httpconnect.getInputStream());
-		filedownload.setHttpresponseHeader(httpconnect.getHttpresponseheader());
 		filedownload.setCrawlUrl(httpconnect.getCrawlurl());
 		filedownload.download();
 	}
@@ -63,14 +71,12 @@ public class FileDownloadTest {
 	 */
 	@Ignore
 	public void testGetFileName() {
-		String filename=filedownload.getFileName();
-		System.out.println("filename:"+filename);
 	}
 
 	/**
 	 * Test method for {@link com.http.connect.FileDownload#getAbsolutePath()}.
 	 */
-	@Test
+	@Ignore
 	public void testGetAbsolutePath() {
 		String filepath=filedownload.getAbsolutePath();
 		System.out.println("absolutepath:"+filepath);
@@ -88,15 +94,20 @@ public class FileDownloadTest {
 
 	/**
 	 * Test method for {@link com.http.connect.FileDownload#parseURL()}.
+	 * @throws Exception 
 	 */
-	@Test
-	public void testParseURL() {
+	@Ignore
+	public void testParseURL() throws Exception {
+		String[] dir=filedownload.parseURL();
+		for(String s:dir){
+			System.out.println(s);
+		}
 	}
 
 	/**
 	 * Test method for {@link com.http.connect.FileDownload#isParser()}.
 	 */
-	@Test
+	@Ignore
 	public void testIsParser() {
 		Assert.assertTrue(filedownload.isParser());
 	}
@@ -115,6 +126,8 @@ public class FileDownloadTest {
 	@Test
 	public void testPrintFile() throws Exception {
 		filedownload.printFile();
+		filedownload.isParser();
+		System.out.println(filedownload.isParser());
 	}
 
 }

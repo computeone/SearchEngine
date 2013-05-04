@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.http.connect.SimpleHttpURLParser;
@@ -55,10 +56,20 @@ public class SimpleHttpURLParserTest {
 	 */
 	@Test
 	public void testParserURL() {
-		String[] str=parser.parserURL("http://www.baidu.com:80");
+		String[]  urls=new String[6];
+		urls[0]="http://www.baidu.com/";
+		urls[1]="http://www.suse.edu.cn/";
+		urls[2]="http://www.suse.edu.cn/index.html";
+		urls[3]="http://www.suse.edu.cn/login/ppp.html";
+		urls[4]="http://www.ifeng.com:80/long/temp^&(&*&(/index.html";
+		urls[5]="http://www.ifeng.com:80/long\n\t/index.html";
+		String[] str=parser.parserURL(urls[0]);
 		System.out.println("---------------------------");
 		System.out.println(str.length);
 		for(String s:str){
+			if(s!=null&&s.equals("")){
+				System.out.println("is null char");
+			}
 			System.out.println(s);
 		}
 		
@@ -67,17 +78,23 @@ public class SimpleHttpURLParserTest {
 	/**
 	 * Test method for {@link com.http.connect.SimpleHttpURLParser#vertifyURL(java.lang.String)}.
 	 */
-	@Test
+	@Ignore
 	public void testVertifyURL() {
-		String url="http://www.baidu.com";
-		boolean result=parser.vertifyURL(url);
+		String[] urls=new String[6];
+		urls[0]="http://www.baidu.com/";
+		urls[1]="http://www.suse.edu.cn/";
+		urls[2]="http://www.suse.edu.cn/index.html";
+		urls[3]="http://www.suse.edu.cn/login/ppp.html";
+		urls[4]="http://www.ifeng.com:80/long/temp^&(&*&(/index.html";
+		urls[5]="http://www.ifeng.com:80/long\n\t/index.html";
+		boolean result=parser.vertifyURL(urls[5]);
 		Assert.assertTrue(result);
 	}
 
 	/**
 	 * Test method for {@link com.http.connect.SimpleHttpURLParser#parserPath(java.lang.String)}.
 	 */
-	@Test
+	@Ignore
 	public void testParserPath() {
 		String[] str=parser.parserPath("e:\\spider/niubaisui/test.html");
 		for(String s:str){
@@ -88,8 +105,18 @@ public class SimpleHttpURLParserTest {
 	/**
 	 * Test method for {@link com.http.connect.SimpleHttpURLParser#deleteIllegalChar(java.lang.String)}.
 	 */
-	@Test
+	@Ignore
 	public void testDeleteIllegalChar() {
+		String[] urls=new String[6];
+		urls[0]="http://www.baidu.com/";
+		urls[1]="http://www.suse.edu.cn/";
+		urls[2]="http://www.suse.edu.cn/index.html";
+		urls[3]="http://www.suse.edu.cn/login/ppp.html";
+		urls[4]="http://www.ifeng.com:80/long/temp^&(&*&(/index.html";
+		urls[5]="http://www.ifeng.com:80/long\n\t/index.html";
+		String s=parser.deleteIllegalChar(urls[5]);
+		System.out.println("·Ç·¨×Ö·û");
+		System.out.println(s);
 	}
 
 }

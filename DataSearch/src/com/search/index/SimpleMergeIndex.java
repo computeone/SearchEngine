@@ -116,15 +116,40 @@ public class SimpleMergeIndex {
 			index_list.addLast(index);
 			int frequency = 1;// 设置词频
 			
+			
+			//
 			while (!linkedList.isEmpty()
 					&& linkedList.peekFirst().getTerm().equals(token.getTerm())) {
 				index.add(linkedList.pollFirst().getID());
 				frequency++;
 			}
+			this.Sort_ID(index.getTokens_id());
 			index.setFrequency(frequency);
 		}
 		return index_list;
 	}
+	
+	private void Sort_ID(LinkedList<Long> tokens_id){
+		Long id=tokens_id.getFirst();
+		int n=0;
+		for(int i=0;i<tokens_id.size()-1;i++){
+			
+			for(int j=i+1;j<tokens_id.size();j++){
+				if(id>tokens_id.get(j)){
+					id=tokens_id.get(j);
+					n=j;
+				}
+			}
+			
+			Long tempid=tokens_id.get(n);
+			tokens_id.set(n, tokens_id.get(i));
+			tokens_id.set(i, tempid);
+			
+			id=tokens_id.get(i+1);
+			n=i+1;
+		}
+	}
+	
 
 	// 将索引写到特定的文件中
 	public void write_index_to_file(String dirpath) throws IOException {

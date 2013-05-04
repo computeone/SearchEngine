@@ -22,21 +22,21 @@ public class TokenSort {
 		TokenCompare compare=new TokenCompare();
 		
 		int n=0;
-		for(int i=1;i<tokens.size();i++){
-			for(int j=i;j<tokens.size();j++){
-				if(compare.compare(tokens.get(i), token)==-1){
-					token=tokens.get(i);
-					n=i;
+		for(int i=0;i<tokens.size()-1;i++){
+			for(int j=i+1;j<tokens.size();j++){
+				if(compare.compare(tokens.get(j), token)==-1){
+					token=tokens.get(j);
+					n=j;
 				}	
 			}
 			//½»»»		
 			Token temp=tokens.get(n);
-			tokens.set(n, tokens.get(i-1));
-			tokens.set(i-1, temp);
+			tokens.set(n, tokens.get(i));
+			tokens.set(i, temp);
 			
 			//³õÊ¼»¯
-			n=i;
-			token=tokens.get(i);
+			n=i+1;
+			token=tokens.get(i+1);
 		}
 		return tokens;
 		

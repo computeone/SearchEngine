@@ -23,7 +23,7 @@ public class SimpleHttpStatusCodeHandler {
 
 	public void redirect(HttpConnect httpconnect) {
 		String redirecturl = httpconnect.getHttpresponseheader().getLocation();
-		httpconnect.setUrl(redirecturl);
+//		httpconnect.setUrl(redirecturl);
 		try {
 			httpconnect.Connect();
 		} catch (Exception e) {

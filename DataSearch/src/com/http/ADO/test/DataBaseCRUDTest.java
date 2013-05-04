@@ -92,7 +92,7 @@ public class DataBaseCRUDTest {
 	 * @throws Exception 
 	 * @throws SQLException 
 	 */
-	@Test
+	@Ignore
 	public void testQuery_visitedURL() throws SQLException, Exception {
 		CrawlUrl url=new CrawlUrl();
 		url.setOriUrl("www.jd.com");
@@ -118,10 +118,11 @@ public class DataBaseCRUDTest {
 	 * @throws Exception 
 	 * @throws SQLException 
 	 */
-	@Ignore
+	@Test
 	public void testGetURL() throws SQLException, Exception {
 		CrawlUrl crawlurl=crud.getURL();
 		System.out.println("url:"+crawlurl.getOriUrl());
+		System.out.println(crawlurl.getLayer());
 		
 	}
 
@@ -130,7 +131,7 @@ public class DataBaseCRUDTest {
 	 * @throws Exception 
 	 * @throws SQLException 
 	 */
-	@Test
+	@Ignore
 	public void testUpdatedVisitedURL() throws SQLException, Exception {
 		CrawlUrl crawlurl=new CrawlUrl();
 		crawlurl.setOriUrl("www.baidu.com");
@@ -146,7 +147,7 @@ public class DataBaseCRUDTest {
 	 * @throws Exception 
 	 * @throws SQLException 
 	 */
-	@Test
+	@Ignore
 	public void testUpdatedUNVisitedURL() throws SQLException, Exception {
 		CrawlUrl crawlurl=new CrawlUrl();
 		crawlurl.setOriUrl("www.jd.com");

@@ -10,25 +10,20 @@ import com.search.data.Document;
  * 
  */
 public class WebPage {
-	private LinkedList<Document> document;
+	private LinkedList<Document> documents;
 	public WebPage() {
-		document=new LinkedList<Document>();
+		documents=new LinkedList<Document>();
 	}
 	
 	public void addDocument(Document document){
-		this.document.addLast(document);
+		this.documents.addLast(document);
 	}
 	
 	public Document nextDocument(){
-		if(document.isEmpty()){
-			return null;
-		}
-		else {
-			return document.pollFirst();
-		}
+		return documents.pollFirst();
 	}
 	public boolean hasNext(){
-		if(document.isEmpty()){
+		if(documents.isEmpty()){
 			return false;
 		}
 		else{

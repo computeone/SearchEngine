@@ -46,6 +46,7 @@ public class DataBaseCRUD {
 		stmt.setInt(13, url.getLayer());
 		
 		stmt.execute();
+		stmt.close();
 	}
 
 	/*
@@ -69,6 +70,7 @@ public class DataBaseCRUD {
 		stmt.setInt(13, url.getLayer());
 		
 		stmt.execute();
+		stmt.close();
 	}
 
 	/*
@@ -88,6 +90,7 @@ public class DataBaseCRUD {
 		CrawlUrl crawlurl=new CrawlUrl();
 		crawlurl.setOriUrl(url.getOriUrl());
 		crawlurl.setPriority(priority);
+		stmt.close();
 		return crawlurl;
 	}
 
@@ -108,6 +111,7 @@ public class DataBaseCRUD {
 		CrawlUrl crawlurl=new CrawlUrl();
 		crawlurl.setOriUrl(url.getOriUrl());
 		crawlurl.setPriority(priority);
+		stmt.close();
 		return crawlurl;
 	}
 
@@ -116,19 +120,29 @@ public class DataBaseCRUD {
 	 */
 	public CrawlUrl getURL() throws Exception, SQLException {
 		Statement stmt = con.createStatement();
+		stmt.setMaxRows(2);
 		ResultSet rs = stmt.executeQuery("select * from unvisitedurl "
-				+ "where priority=(select max(priority) from unvisitedurl)");
+				+ "where layer=(select min(layer) from unvisitedurl)");
 		boolean isExist = rs.next();
 		if (!isExist) {
 			return null;
 		} else {
 			String url = rs.getString("oriUrl");
 			int priority = rs.getInt("priority");
+			int layer=rs.getInt("layer");
 			CrawlUrl crawlurl=new CrawlUrl();
 			crawlurl.setOriUrl(url);
 			crawlurl.setPriority(priority);
-			stmt.executeUpdate("delete from unvisitedurl where oriUrl='" + url
-					+ "'");
+			crawlurl.setLayer(layer);
+			
+			stmt.close();
+			//
+			String sql="delete from unvisitedurl where oriUrl=?";
+			PreparedStatement update_stmt=con.prepareStatement(sql);
+			update_stmt.setString(1, url);
+			update_stmt.executeUpdate();
+			update_stmt.close();
+			
 			return crawlurl;
 		}
 	}
@@ -138,6 +152,7 @@ public class DataBaseCRUD {
 		Statement stmt = con.createStatement();
 		stmt.executeUpdate("update visitedurl set priority='" + url.getPriority() + "'"
 				+ "  where oriUrl='" + url.getOriUrl()+ "'");
+		stmt.close();
 	}
 
 	public void updatedUNVisitedURL(CrawlUrl url) throws Exception,
@@ -155,6 +170,7 @@ public class DataBaseCRUD {
 			int size=rs.getInt("count(oriUrl)");
 			return size;
 		}
+		stmt.close();
 		return -1;
 	}
 
@@ -166,6 +182,7 @@ public class DataBaseCRUD {
 			int size=rs.getInt("count(oriUrl)");
 			return size;
 		}
+		stmt.close();
 		return -1;
 	}
 
