@@ -22,7 +22,7 @@ public class DocumentThread extends Thread {
 	private Logger logger=LogManager.getLogger("DocumentThread");
 	
 	private String SaveDocument_sql() throws Exception, SQLException {
-		String sql = "insert into Document(id,rank,create_date,store_attributes,index_attributes) values (?,?,?,?,?)";
+		String sql = "insert into Document(id,rank,url,create_date,store_attributes,index_attributes) values (?,?,?,?,?,?)";
 		return sql;
 	}
 	
@@ -64,10 +64,11 @@ public class DocumentThread extends Thread {
 				//Ð´Õ¼Î»·û
 				stmt.setLong(1, document.getID());
 				stmt.setInt(2, document.getRanks());
-				stmt.setTimestamp(3, new Timestamp(Calendar.getInstance()
+				stmt.setString(3, document.getUrl());
+				stmt.setTimestamp(4, new Timestamp(Calendar.getInstance()
 						.getTimeInMillis()));
-				stmt.setAsciiStream(4,attributes_in);
-				stmt.setAsciiStream(5,indexattributes_in);
+				stmt.setAsciiStream(5,attributes_in);
+				stmt.setAsciiStream(6,indexattributes_in);
 				stmt.execute();
 			} catch (Exception e) {
 				e.printStackTrace();

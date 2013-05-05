@@ -10,7 +10,7 @@ import com.http.Search.CrawlUrl;
 import com.search.DAO.Connect;
 
 public class DataBaseCRUD {
-	private Connection con;
+	private  Connection con;
 	private String insert_visitedurl_sql="insert into visitedurl(oriUrl,url,urlNo,statusCode," +
 			"hitNum,charSet,abstractText,author,priority,description," +
 			"title,type,layer) values(?,?,?,?,?,?,?,?,?,?,?,?,?);";
@@ -121,8 +121,7 @@ public class DataBaseCRUD {
 	public CrawlUrl getURL() throws Exception, SQLException {
 		Statement stmt = con.createStatement();
 		stmt.setMaxRows(2);
-		ResultSet rs = stmt.executeQuery("select * from unvisitedurl "
-				+ "where layer=(select min(layer) from unvisitedurl)");
+		ResultSet rs = stmt.executeQuery("select * from  unvisitedurl order by layer,priority desc");
 		boolean isExist = rs.next();
 		if (!isExist) {
 			return null;

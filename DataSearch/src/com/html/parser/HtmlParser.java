@@ -1,7 +1,15 @@
 package com.html.parser;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
@@ -305,6 +313,47 @@ public class HtmlParser implements DocumentParser {
 		return false;
 	}
 	
+	public void writeDocument_to_database() throws Exception{
+		String sql = "insert into Document(id,rank,create_date,store_attributes,index_attributes) values (?,?,?,?,?)";
+		Connection con=null;
+		try {
+			con = Connect.getConnection();
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+		}
+		
+		PreparedStatement stmt = con.prepareStatement(sql);
+				
+		logger.info("writing id="+document.getID()+" document");
+				
+		//序列化
+		ByteArrayOutputStream attributes_out=new ByteArrayOutputStream();
+		ObjectOutputStream attributes_object=new ObjectOutputStream(attributes_out);
+		attributes_object.writeObject(document.getStore_attributes());
+		ByteArrayInputStream attributes_in=new ByteArrayInputStream(attributes_out.toByteArray());
+				
+		//序列化
+		ByteArrayOutputStream indexattributes_out=new ByteArrayOutputStream();
+		ObjectOutputStream indexattributes_object=new ObjectOutputStream(indexattributes_out);
+		indexattributes_object.writeObject(document.getIndex_attributes());
+		ByteArrayInputStream indexattributes_in=new ByteArrayInputStream(indexattributes_out.toByteArray());
+				
+		//写占位符
+		stmt.setLong(1, document.getID());
+		stmt.setInt(2, document.getRanks());
+		stmt.setTimestamp(3, new Timestamp(Calendar.getInstance()
+						.getTimeInMillis()));
+		stmt.setAsciiStream(4,attributes_in);
+		stmt.setAsciiStream(5,indexattributes_in);
+		stmt.execute();
+		try {
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	/*
 	 * 把解析得到的document存入数据库中
 	 */
@@ -314,7 +363,8 @@ public class HtmlParser implements DocumentParser {
 	public void parser() throws Exception{	
 		links=new LinkedList<CrawlUrl>();
 		document=new Document(CrawlWebCentralThread.document_id++);
-		document.addStore_attribute("url", crawlurl.getOriUrl());
+		document.setUrl(crawlurl.getOriUrl());
+		document.setDate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
 		document.addIndex_attribute("title", null);
 		document.addIndex_attribute("keywords", null);
 		document.addIndex_attribute("description", null);
@@ -347,10 +397,10 @@ public class HtmlParser implements DocumentParser {
 			logger.info("Parser url:");
 			logger.info("encoding:"+crawlurl.getCharSet());
 			
-			
+				logger.info("开始过滤处理提取");
 			//过滤处理
 			for (int i = 0; i < nodelist.size(); i++) {
-				logger.info("开始过滤处理提取");
+			
 				Node node = nodelist.elementAt(i);
 				String s=node.toHtml();
 				// 关键字
@@ -360,12 +410,16 @@ public class HtmlParser implements DocumentParser {
 				else if(matcher_frame(s));
 				else if(matcher_iframe(s));
 			}
+//			CrawlWebCentralThread.addWebPage(document);
+			logger.info("写入文档成功");
 			logger.info("解析文档成功");
 			/*
 			 * 将document加入列表
 			 */			
 			// 解析出来正确的url
 		} catch (ParserException e) {
+//			CrawlWebCentralThread.addWebPage(document);
+			logger.info("写入文档成功");
 			logger.error(e.getMessage());
 			e.printStackTrace();
 		}

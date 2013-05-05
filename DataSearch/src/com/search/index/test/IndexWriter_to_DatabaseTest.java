@@ -57,17 +57,24 @@ public class IndexWriter_to_DatabaseTest {
 	public void testIndexWriter() throws Exception{
 		LinkedList<Document> documents=new LinkedList<Document>();
 		Document document1=new Document(1l);
-		document1.addIndex_attribute("keyword", "了结");
+		document1.setUrl("http://www.suse.edu.cn");
+		document1.addIndex_attribute("keyword", "了结  aiwo");
+		document1.setUrl("http://www.aiwo.edu.cn");
 		Document document2=new Document(2l);
-		document2.addIndex_attribute("keyword", "dongfangbubei");
+		document2.addIndex_attribute("keyword", "dongfangbubai");
+		document2.setUrl("http://www.lejie.com");
 		Document document3=new Document(3l);
-		document3.addIndex_attribute("keyword", "lejie");
+		document3.addIndex_attribute("keyword", "lejie dongfangbubai");
+		document3.setRanks(100);
 		Document document4=new Document(4l);
-		document4.addIndex_attribute("keyword", "aiwo");
+		document4.addIndex_attribute("keyword", "aiwo dongfangbubai");
+		document4.setRanks(130);
 		Document document5=new Document(5l);
-		document5.addIndex_attribute("keyword", "dongfangbubei guliang");
+		document5.setRanks(120);
+		document5.addIndex_attribute("keyword", "dongfangbubai guliang dongfangbubai");
 		Document document6=new Document(6l);
 		document6.addIndex_attribute("keyword", "爱我");
+		document6.setRanks(3000);
 		
 		documents=new LinkedList<Document>();
 		documents.add(document1);

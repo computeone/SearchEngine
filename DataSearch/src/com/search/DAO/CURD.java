@@ -16,12 +16,13 @@ import java.util.Set;
 
 import com.search.data.Attribute;
 import com.search.data.Document;
+import com.search.data.Field;
 import com.search.data.IDhandler;
 import com.search.index.Token_Structure;
 
 public class CURD {
 	// 对特定的词进行关键字查询
-	public Token_Structure selectIndex(String term) throws Exception,
+	public static Token_Structure selectIndex(String term) throws Exception,
 			SQLException {
 		Connection con = Connect.getConnection();
 		String sql;
@@ -78,6 +79,7 @@ public class CURD {
 	}
 
 	// 查询得到一系列Field的content
+	@Deprecated
 	public LinkedList<String> selectField(LinkedList<Long> id) throws Exception,
 			SQLException {
 		Connection con = Connect.getConnection();
@@ -100,10 +102,11 @@ public class CURD {
 	}
 
 	// 查询得到Document
-	public Document selectDocument(long id) throws Exception, SQLException {
+	@Deprecated
+	public Document selectDocument(long field_id) throws Exception, SQLException {
 		Connection con = Connect.getConnection();
 		Statement stmt = con.createStatement();
-		String sql = "select * from Document where id='" + id + "'";
+		String sql = "select * from Document where id='" + field_id + "'";
 		ResultSet resultset = stmt.executeQuery(sql);
 		long document_id=resultset.getLong("id");
 		Document document=new Document(document_id);
@@ -140,16 +143,19 @@ public class CURD {
 	}
 	
 	//查询得到一系列Document
-	public LinkedList<Document> selectDocuments(LinkedList<Long> ids) throws Exception,SQLException{
+	public static LinkedList<Document> selectDocuments(LinkedList<Field> fields) throws Exception,SQLException{
 		Connection con=Connect.getConnection();
 		LinkedList<Document> documents=new LinkedList<Document>();
 		String sql="select * from Document where id=?";
-		Iterator<Long> iterator=ids.iterator();
+		
+		Iterator<Field> iterator=fields.iterator();
 		
 		while(iterator.hasNext()){
 			PreparedStatement stmt=con.prepareStatement(sql);
-			long id=iterator.next();			
-			stmt.setLong(1,id);
+			Field field=iterator.next();	
+			long id=field.getID();
+			IDhandler idhandler=new IDhandler(id);		
+			stmt.setLong(1,idhandler.getDocumnent_id());
 			stmt.execute();
 			
 			
@@ -185,6 +191,8 @@ public class CURD {
 					document.addIndex_attribute(key, index_attributes.get(key).getValue());
 				}
 				
+				//field复制matcher属性到document
+				document.addStore_attribute("matcher", field.getAttriubte("matcher"));
 				documents.add(document);
 			}		
 			

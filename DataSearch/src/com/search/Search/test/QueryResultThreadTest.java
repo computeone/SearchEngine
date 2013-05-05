@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.search.Search.QueryResultThread;
+import com.search.Search.QueryFieldThread;
 import com.search.data.Field;
 
 /**
@@ -26,10 +26,10 @@ public class QueryResultThreadTest {
 	 * @throws java.lang.Exception
 	 */
 	
-	private static QueryResultThread thread;
+	private static QueryFieldThread thread;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		thread=new QueryResultThread();
+		thread=new QueryFieldThread();
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class QueryResultThreadTest {
 	}
 
 	/**
-	 * Test method for {@link com.search.Search.QueryResultThread#getSearchResult()}.
+	 * Test method for {@link com.search.Search.QueryFieldThread#getSearchResult()}.
 	 */
 	@Test
 	public void testGetSearchResult() {
@@ -63,7 +63,7 @@ public class QueryResultThreadTest {
 	}
 
 	/**
-	 * Test method for {@link com.search.Search.QueryResultThread#run()}.
+	 * Test method for {@link com.search.Search.QueryFieldThread#run()}.
 	 */
 	@Test
 	public void testRun() {

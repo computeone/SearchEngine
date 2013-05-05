@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.search.DAO.CURD;
 import com.search.DAO.Connect;
+import com.search.Search.ShellSort;
 
 public class IndexThread extends Thread {
 	private LinkedList<Token_Structure> indexs;
@@ -99,6 +100,7 @@ public class IndexThread extends Thread {
 		}
 		
 		Iterator<Token_Structure> iterator=indexs.iterator();
+		
 		while (iterator.hasNext()) {
 			try {
 				
@@ -106,9 +108,8 @@ public class IndexThread extends Thread {
 				Token_Structure index=iterator.next();
 				byte[] unicode = index.getTerm().getBytes();
 				String sql = this.SaveToken_sql(unicode.length);
-				CURD curd = new CURD();
-				Token_Structure updated_index = curd.selectIndex(index
-						.getTerm());
+				
+				Token_Structure updated_index = CURD.selectIndex(index.getTerm());
 				// 如果存在则执行更新
 				if (updated_index != null) {
 					LinkedList<Long> updated_list = updated_index
@@ -121,7 +122,7 @@ public class IndexThread extends Thread {
 						frequency++;
 					}
 					// 执行排序
-					updated_list = BuildIndexDataBase.Sort(updated_list);
+					ShellSort.Sort(updated_list,new LongCompare());
 					// 进行序列化
 					updated_index.setFrequency(frequency);
 					ByteArrayOutputStream selected_bout = new ByteArrayOutputStream();
@@ -152,7 +153,7 @@ public class IndexThread extends Thread {
 				else {
 					// 进行排序tokens_id
 					LinkedList<Long> tokens_id = index.getTokens_id();
-					tokens_id = BuildIndexDataBase.Sort(tokens_id);
+					ShellSort.Sort(tokens_id, new LongCompare());
 					// 序列化tokes_id
 					ByteArrayOutputStream bout = new ByteArrayOutputStream();
 					ObjectOutputStream out = new ObjectOutputStream(bout);

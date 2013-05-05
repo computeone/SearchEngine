@@ -10,19 +10,23 @@ import com.search.data.Document;
  * 
  */
 public class WebPage {
-	private LinkedList<Document> documents;
+	private  LinkedList<Document> documents;
 	public WebPage() {
 		documents=new LinkedList<Document>();
 	}
 	
-	public void addDocument(Document document){
+	public synchronized void addDocument(Document document){
 		this.documents.addLast(document);
 	}
 	
-	public Document nextDocument(){
+	public synchronized Document nextDocument(){
 		return documents.pollFirst();
 	}
-	public boolean hasNext(){
+	
+	public synchronized int getSize(){
+		return documents.size();
+	}
+	public synchronized boolean hasNext(){
 		if(documents.isEmpty()){
 			return false;
 		}

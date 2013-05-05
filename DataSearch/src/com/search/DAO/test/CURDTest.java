@@ -3,10 +3,8 @@
  */
 package com.search.DAO.test;
 
-import static org.junit.Assert.*;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -15,7 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.search.DAO.CURD;
-import com.search.data.Document;
 
 /**
  * @author niubaisui
@@ -82,13 +79,7 @@ public class CURDTest {
 	 */
 	@Test
 	public void testSelectDocuments() throws SQLException, Exception {
-		LinkedList<Long> id=new LinkedList<Long>();
-		id.add(2l<<40);
-		id.add(5l<<40);
-		LinkedList<Document> documents=curd.selectDocuments(id);
-		for(Document document:documents){
-			System.out.println(document.getIndex_attribute("keyword"));
-		}
+		
 	}
 
 }

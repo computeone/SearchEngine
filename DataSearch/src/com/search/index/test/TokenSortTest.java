@@ -14,7 +14,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.search.data.Token;
-import com.search.index.TokenSort;
 
 /**
  * @author niubaisui
@@ -64,10 +63,7 @@ public class TokenSortTest {
 	 */
 	@Test
 	public void testSortLinkedListOfToken() {
-		LinkedList<Token> t=TokenSort.Sort(tokens);
-		for(int i=0;i<t.size();i++){
-			System.out.println(t.get(i).getTerm());
-		}
+		
 	}
 
 	/**

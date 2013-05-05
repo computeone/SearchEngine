@@ -91,7 +91,9 @@ public class HttpConnectTest {
 		crawlurl.setLayer(1);
 		String[] urls=new String[6];
 		urls[0]="http://www.ifeng.com";
-		crawlurl.setOriUrl(urls[0]);
+		urls[1]="http://news.ifeng.com/opinion/special/wangping/xinxinrenlei.shtml\" target=\"_blank\"";
+		urls[2]="http://tyx.suse.edu.cn";
+		crawlurl.setOriUrl(urls[2]);
 		
 		
 		httpconnect.setCrawlUrl(crawlurl);	

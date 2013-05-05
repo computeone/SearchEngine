@@ -46,4 +46,11 @@ public class Field {
 		attributes.put(key, value);
 	}
 	
+	public void alterAttribute(String key,String new_value){
+		String value=attributes.get(key);
+		if(value!=null){
+			attributes.put(key, new_value);
+		}
+	}
+	
 }

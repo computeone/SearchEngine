@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import com.search.Search.ShellSort;
 import com.search.data.Document;
 import com.search.data.Field;
 import com.search.data.Token;
@@ -56,7 +57,7 @@ public class SimpleMergeIndex {
 				temp.addLast(token);
 			}
 			
-			temp=TokenSort.Sort(temp);
+			ShellSort.Sort(temp	,new TokenCompare());
 			t.addLast(temp);					
 		}
 		

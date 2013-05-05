@@ -14,7 +14,6 @@ public class BreadthFirstTraversal{
 	private Logger logger = LogManager.getLogger("BreadthFirstTraversal");
 
 	// ≥ı ºªØ
-
 	public static BreadthFirstTraversal getBreadthFirstTraversal(
 			CrawlUrl[] initurl) throws SQLException, Exception {
 		return new BreadthFirstTraversal(initurl);
@@ -42,6 +41,7 @@ public class BreadthFirstTraversal{
 			boolean result=visitedUrl.addURL(url);
 			return result;
 		} catch (Exception e) {
+			e.printStackTrace();
 			return (Boolean) null;
 		}
 	}
@@ -51,7 +51,7 @@ public class BreadthFirstTraversal{
 		try {
 			visitedUrl.add_known_URL(url);
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 		}
 	}
 
@@ -61,6 +61,7 @@ public class BreadthFirstTraversal{
 			boolean result=unvisitedUrl.addURL(url);
 			return result;
 		} catch (Exception e) {
+			e.printStackTrace();
 			return (Boolean) null;
 		}
 	}

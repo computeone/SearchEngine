@@ -15,23 +15,23 @@ import com.search.DAO.Connect;
 import com.search.data.Field;
 import com.search.data.IDhandler;
 
-public class QueryResultThread implements Runnable {
+public class QueryFieldThread implements Runnable {
 
-	private LinkedList<Long> ids;
+	private LinkedList<Long> tokens_id;
 	private CountDownLatch latch;
 	private LinkedList<Field> fields=new LinkedList<Field>();
-	public void setFields(LinkedList<Long> ids){
-		this.ids=ids;
+	public void setFields(LinkedList<Long> tokens_id){
+		this.tokens_id=tokens_id;
 	}
 	
-	public QueryResultThread(){	
+	public QueryFieldThread(){	
 		
 	}
 	
-	public QueryResultThread(LinkedList<Long> ids){
-		this.ids=ids;
+	public QueryFieldThread(LinkedList<Long> tokens_id){
+		this.tokens_id=tokens_id;
 	}
-	public QueryResultThread(CountDownLatch latch){
+	public QueryFieldThread(CountDownLatch latch){
 		this.latch=latch;
 	}
 	
@@ -39,7 +39,7 @@ public class QueryResultThread implements Runnable {
 		return fields;
 	}
 	public LinkedList<Long> getFields(){
-		return ids;
+		return tokens_id;
 	}
 	
 	@Override
@@ -53,7 +53,7 @@ public class QueryResultThread implements Runnable {
 			System.exit(0);
 		}
 		
-		Iterator<Long> iterator=ids.iterator();
+		Iterator<Long> iterator=tokens_id.iterator();
 		while (iterator.hasNext()) {
 			try {
 				Statement stmt = con.createStatement();
@@ -82,6 +82,9 @@ public class QueryResultThread implements Runnable {
 						field.addAttribute(key, attributes.get(key));
 					}				
 					field.setPriority(priority);
+					
+					//ÃÌº”∆•≈‰∂» Ù–‘
+					field.addAttribute("matcher", String.valueOf(0));
 				}
 				fields.addLast(field);
 		

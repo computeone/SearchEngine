@@ -131,15 +131,21 @@ public class CrawlWebCentralThread {
 		
 		CrawlWebCentralThread.rootdir = rootdir;
 		webcontrol.Init(initurl);
+		//写文档线程
+//		new SaveDocumentThread().run();
+//		new DocumentSyncThread().run();
+		//同步文档线程
+		
 		
 		/*
 		 * 爬行线程数量策略
 		 */
 		while (true) {
 			// 构造线程的策略是当没有访问列表中的url大于100*线程池中线程是创建线程，但是线程数不能超过15个
-			logger.debug("httpconnectpoolsize:"+webcontrol.httpconnectpool.getPOOLSIZE());
-			System.out.println("未访问的："+BreadthFirstTraversal.getUNVisitedURL_Size());
-			System.out.println("活动的线程数:"+webcontrol.pool.getActiveCount());
+			logger.info("httpconnectpoolsize:"+webcontrol.httpconnectpool.getPOOLSIZE());
+			logger.info("未访问的url："+BreadthFirstTraversal.getUNVisitedURL_Size());
+			logger.info("活动的线程数:"+webcontrol.pool.getActiveCount());
+//			logger.info("待写的Document的个数为:"+CrawlWebCentralThread.webpages.getSize());
 			if (BreadthFirstTraversal.getUNVisitedURL_Size()> 100 * webcontrol.pool
 					.getActiveCount()
 					&& webcontrol.pool.getActiveCount() < 10) {
@@ -157,7 +163,6 @@ public class CrawlWebCentralThread {
 			
 			try {
 				Thread.sleep(1000);
-				webcontrol.writeWebPage();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

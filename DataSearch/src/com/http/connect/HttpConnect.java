@@ -166,7 +166,7 @@ public class HttpConnect {
 		
 		URL urlconnect = new URL(crawlurl.getOriUrl());
 		httpconnect = (HttpURLConnection) urlconnect.openConnection();
-//		httpconnect.setConnectTimeout(100);
+		httpconnect.setConnectTimeout(2000);
 		if(httpconnect!=null){
 			success();
 		}
@@ -190,6 +190,7 @@ public class HttpConnect {
 	//设置文档类型
 	private void setContentType(){
 		crawlurl.setType(httpresponseheader.getContent_Type());
+		logger.info("content-type:"+crawlurl.getType());
 	}
 	
 	//设置文档编码类型
