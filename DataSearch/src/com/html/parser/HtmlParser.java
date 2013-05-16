@@ -3,8 +3,10 @@ package com.html.parser;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -103,14 +105,18 @@ public class HtmlParser implements DocumentParser {
 		boolean result=matcher_keyword.matches();
 		if(result){
 			if(matcher1.matches()){
-				if(matcher1.group(1).equals("keywords")||matcher1.group(1).equals("description")){
+				String s=matcher1.group(1).toLowerCase();
+				
+				if(s.equals("keywords")||s.equals("description")){
 					logger.info("name:"+matcher1.group(1)+"  content:"+matcher1.group(2));
 					document.addIndex_attribute(matcher1.group(1), matcher1.group(2));
 				}
 				
 			}
 			else if(matcher2.matches()){
-				if(matcher2.group(2).equals("keywords")||matcher2.group(2).equals("description")){
+				String s=matcher2.group(1).toLowerCase();
+				
+				if(s.equals("keywords")||s.equals("description")){
 					logger.info("name:"+matcher2.group(2)+"  content:"+matcher2.group(1));
 					document.addIndex_attribute(matcher2.group(2),matcher2.group(1));
 				}
@@ -306,8 +312,10 @@ public class HtmlParser implements DocumentParser {
 		String regex="<title.*>(.*)</title>";
 		Matcher matcher=Pattern.compile(regex,Pattern.DOTALL).matcher(str);
 		if(matcher.matches()){
-			logger.info("title:"+matcher.group(1));
-			document.addIndex_attribute("title", matcher.group(1));
+			String title=matcher.group(1).replaceAll("\\s", "");
+			System.out.println();
+			logger.info("title:"+title);			
+			document.addIndex_attribute("title", title);
 			return true;
 		}
 		return false;
@@ -354,6 +362,31 @@ public class HtmlParser implements DocumentParser {
 			e.printStackTrace();
 		}
 	}
+	
+	private void parserEncoding(File file) throws Exception{
+		FileInputStream in=new FileInputStream(file);
+		String str="";
+		int count=0;
+		int ch=0;
+		while((ch=in.read())!=-1){
+			char c=(char)ch;
+			if(c=='\n'){
+				count++;
+				if(count==50){
+					in.close();
+					break;
+				}
+			}			
+			str=str+c;
+		}
+		in.close();
+		//
+		Matcher matcher=Pattern.compile(".*charset=\"?([\\w-]+)\".*", Pattern.DOTALL).matcher(str);
+		if(matcher.matches()){
+			logger.info("解析的encoding:"+matcher.group(1));
+			crawlurl.setCharSet(matcher.group(1));
+		}
+	}
 	/*
 	 * 把解析得到的document存入数据库中
 	 */
@@ -374,6 +407,7 @@ public class HtmlParser implements DocumentParser {
 		try {
 			
 			Parser parser = new Parser(file.getAbsolutePath());
+			parserEncoding(file);
 			if(crawlurl.getCharSet()!=null){
 				this.setEncode(crawlurl.getCharSet());
 			}
@@ -394,7 +428,7 @@ public class HtmlParser implements DocumentParser {
 			//组成或过滤器
 			OrFilter chainfilter = new OrFilter(filterchain);
 			NodeList nodelist = parser.extractAllNodesThatMatch(chainfilter);
-			logger.info("Parser url:");
+
 			logger.info("encoding:"+crawlurl.getCharSet());
 			
 				logger.info("开始过滤处理提取");
@@ -410,7 +444,7 @@ public class HtmlParser implements DocumentParser {
 				else if(matcher_frame(s));
 				else if(matcher_iframe(s));
 			}
-//			CrawlWebCentralThread.addWebPage(document);
+			CrawlWebCentralThread.addWebPage(document);
 			logger.info("写入文档成功");
 			logger.info("解析文档成功");
 			/*
@@ -418,7 +452,7 @@ public class HtmlParser implements DocumentParser {
 			 */			
 			// 解析出来正确的url
 		} catch (ParserException e) {
-//			CrawlWebCentralThread.addWebPage(document);
+			CrawlWebCentralThread.addWebPage(document);
 			logger.info("写入文档成功");
 			logger.error(e.getMessage());
 			e.printStackTrace();

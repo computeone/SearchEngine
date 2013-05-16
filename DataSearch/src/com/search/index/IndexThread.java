@@ -8,19 +8,23 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.search.DAO.CURD;
+import com.search.DAO.CRUD;
 import com.search.DAO.Connect;
 import com.search.Search.ShellSort;
+import com.search.data.IDhandler;
 
 public class IndexThread extends Thread {
 	private LinkedList<Token_Structure> indexs;
 	private Logger logger=LogManager.getLogger("IndexThread");
-	public IndexThread(LinkedList<Token_Structure> indexs) {
+	private CountDownLatch latch;
+	public IndexThread(LinkedList<Token_Structure> indexs,CountDownLatch latch) {
 		this.indexs = indexs;
+		this.latch=latch;
 	}
 
 	private String SaveToken_sql(int size) throws Exception, SQLException {
@@ -100,7 +104,6 @@ public class IndexThread extends Thread {
 		}
 		
 		Iterator<Token_Structure> iterator=indexs.iterator();
-		
 		while (iterator.hasNext()) {
 			try {
 				
@@ -108,8 +111,16 @@ public class IndexThread extends Thread {
 				Token_Structure index=iterator.next();
 				byte[] unicode = index.getTerm().getBytes();
 				String sql = this.SaveToken_sql(unicode.length);
+				// 长度超过最大值,截断
+				String term=null;
+				if (index.getTerm().length() > 250) {
+					term=index.getTerm().substring(0, 254);
+				}
+				else{
+					term=index.getTerm();
+				}
 				
-				Token_Structure updated_index = CURD.selectIndex(index.getTerm());
+				Token_Structure updated_index = CRUD.selectIndex(term);
 				// 如果存在则执行更新
 				if (updated_index != null) {
 					LinkedList<Long> updated_list = updated_index
@@ -132,13 +143,7 @@ public class IndexThread extends Thread {
 
 					PreparedStatement stmt = con.prepareStatement(this.Save_update(unicode.length));
 					// 写占位符的变量
-					String term = null;
-					// 长度超过最大值,截断
-					if (index.getTerm().length() > 250) {
-						term = updated_index.getTerm().substring(0, 254);
-					} else {
-						term = updated_index.getTerm();
-					}
+					
 					ByteArrayInputStream updated_bin = new ByteArrayInputStream(
 							selected_bout.toByteArray());
 				
@@ -148,6 +153,7 @@ public class IndexThread extends Thread {
 					stmt.setString(3, term);
 					
 					stmt.execute();
+					stmt.close();
 				}
 				// 执行插入操作
 				else {
@@ -160,13 +166,7 @@ public class IndexThread extends Thread {
 					out.writeObject(tokens_id);
 					PreparedStatement stmt = con.prepareStatement(sql);
 					// 写占位符的变量
-					String term = null;
-					// 长度超过最大值,截断
-					if (index.getTerm().length() > 250) {
-						term = index.getTerm().substring(0, 254);
-					} else {
-						term = index.getTerm();
-					}
+					
 					ByteArrayInputStream bin = new ByteArrayInputStream(
 							bout.toByteArray());
 						
@@ -175,10 +175,13 @@ public class IndexThread extends Thread {
 					stmt.setString(2, term);				
 					stmt.setAsciiStream(3, bin);
 					stmt.execute();
+					
+					stmt.close();
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		latch.countDown();
 	}
 }

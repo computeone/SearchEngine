@@ -83,7 +83,7 @@ public class FieldThreadTest {
 		
 		SimpleMergeIndex simplemergeindex=new SimpleMergeIndex(documents);
 		simplemergeindex.mergeIndex();
-		field_thread=new FieldThread(simplemergeindex.getField());
+		field_thread=new FieldThread(simplemergeindex.getField(),null);
 		field_thread.run();
 	}
 

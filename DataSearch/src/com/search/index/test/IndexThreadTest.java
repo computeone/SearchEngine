@@ -84,7 +84,7 @@ public class IndexThreadTest {
 		SimpleMergeIndex simplemergeindex=new SimpleMergeIndex(documents);
 		simplemergeindex.mergeIndex();
 		
-		index_thread=new IndexThread(simplemergeindex.getToken_Structure());
+		index_thread=new IndexThread(simplemergeindex.getToken_Structure(),null);
 		index_thread.run();
 		
 	}

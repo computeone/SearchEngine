@@ -2,8 +2,11 @@ package com.search.data;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Set;
 /*
  * ID为64位的long型整数Document中的24位用来表示可索引的文档的最大数量，20位用来表示文档中的最大行数，
  *20位表示一行中的词条的最大数量(在目前是足够的。。。）
@@ -78,8 +81,18 @@ public class Document {
 			this.addStore_attribute(key, new_value);
 		}
 	}
+	
+	public boolean hasIndex_Attribute(String key){
+		return index_attributes.containsKey(key);
+	}
+	
+	
 	public String getIndex_attribute(String key){
 		return index_attributes.get(key).getValue();
+	}
+	
+	public boolean hasStore_Attribute(String key){
+		return store_attributes.containsKey(key);
 	}
 	
 	public String getStore_attriubte(String key){
@@ -93,6 +106,22 @@ public class Document {
 		return index_attributes.get(key).getIndex();
 	}
 
+	public String getIndex_key(int count){
+		Set<String> keys=index_attributes.keySet();
+		Iterator<String> iterator=keys.iterator();
+		String key=null;
+		int i=0;
+		while(iterator.hasNext()){
+			String temp=iterator.next();
+			if(++i==count){
+				key=temp;
+			}
+		}
+		if(key==null){
+			return key;
+		}
+		return key;
+	}
 	public HashMap<String,String> getStore_attributes() {
 		return store_attributes;
 	}

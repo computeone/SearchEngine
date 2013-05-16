@@ -9,7 +9,7 @@ public class Connect {
 	public static final String DATABASE_TYPE_ORACLE = "Oracle";
 	public static final String DATABASE_TYPE_SQLSERVER = "SqlServer";
 
-	public static Connection getConnection()
+	public synchronized static Connection getConnection()
 			throws ClassNotFoundException, SQLException {
 		switch (Connect.DATABASE_TYPE_MYSQL) {
 		case DATABASE_TYPE_MYSQL:

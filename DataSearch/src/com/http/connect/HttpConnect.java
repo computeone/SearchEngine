@@ -148,6 +148,18 @@ public class HttpConnect {
 		crawlurl.setOriUrl(redirecturl);
 		Connect();
 	}
+	
+	public boolean isDownload(){
+		if(crawlurl.getType()==null){
+			return false;
+		}
+		else if(crawlurl.getType().equals("text/html")){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 	/*
 	 * 连接的主要方法
 	 */
@@ -166,7 +178,7 @@ public class HttpConnect {
 		
 		URL urlconnect = new URL(crawlurl.getOriUrl());
 		httpconnect = (HttpURLConnection) urlconnect.openConnection();
-		httpconnect.setConnectTimeout(2000);
+//		httpconnect.setConnectTimeout(2000);
 		if(httpconnect!=null){
 			success();
 		}

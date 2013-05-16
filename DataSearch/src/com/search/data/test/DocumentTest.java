@@ -58,6 +58,7 @@ public class DocumentTest {
 		document.addIndex_attribute("name","niubaisui");
 		document.addIndex_attribute("lejie", "dongfangbubei");
 		document.addIndex_attribute("aiwo", "chengqiaoen");
+		document.addIndex_attribute("juewu", null);
 		
 		int lejie=document.getIndex_count("lejie");
 		int name=document.getIndex_count("name");
@@ -65,6 +66,8 @@ public class DocumentTest {
 		assertEquals(1,name);
 		assertEquals(2, lejie);
 		assertEquals(3, aiwo);
+		System.out.println(document.getIndex_key(4));
+		System.out.println(document.getIndex_attribute("juewu"));
 	}
 
 	/**

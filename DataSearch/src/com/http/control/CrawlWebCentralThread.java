@@ -132,8 +132,10 @@ public class CrawlWebCentralThread {
 		CrawlWebCentralThread.rootdir = rootdir;
 		webcontrol.Init(initurl);
 		//写文档线程
-//		new SaveDocumentThread().run();
-//		new DocumentSyncThread().run();
+		SaveDocumentThread saveDocument=new SaveDocumentThread();
+		saveDocument.start();
+		DocumentSyncThread documentSync=new DocumentSyncThread();
+		documentSync.start();
 		//同步文档线程
 		
 		
@@ -157,11 +159,11 @@ public class CrawlWebCentralThread {
 				logger.info("Active Thread :"
 						+ webcontrol.pool.getActiveCount());
 			}
-//			CrawlWebCentralThread.writeWebPage();
 			
 			//最后将得到documents写入文件中
 			
 			try {
+				logger.info("主线程睡眠1s");
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

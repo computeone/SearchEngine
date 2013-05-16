@@ -16,6 +16,14 @@ public class TokenSort {
 			LinkedList<Token> t2) {
 		LinkedList<Token> tokens = new LinkedList<Token>();
 		TokenCompare compare = new TokenCompare();
+		if(t1.isEmpty()){
+			return t2;
+		}
+		else if(t2.isEmpty()){
+			return t1;
+		}
+		
+		
 		while (!t1.isEmpty() && !t2.isEmpty()) {
 			if (!t1.isEmpty()
 					&& compare.compare(t1.peekFirst(), t2.peekFirst()) <= 0) {

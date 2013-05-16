@@ -20,7 +20,6 @@ public class SimpleAnalyzer implements Analyzer {
 	private boolean useSmart;
 	private String charset = "gbk";
 	private long id;// field的ID号
-	private LinkedList<Token> tokens=new LinkedList<Token>();
 
 	public SimpleAnalyzer(String content,boolean useSmart){
 		this.content=content;
@@ -77,6 +76,7 @@ public class SimpleAnalyzer implements Analyzer {
 	// 分词主要的函数，将分词的结果以Token数据的形式返回
 	@Override
 	public LinkedList<Token> analyzer() throws Exception {
+		LinkedList<Token> tokens=new LinkedList<Token>();
 		ArrayList<String> list = new ArrayList<String>();
 		StringReader reader = new StringReader(content);
 		IKSegmenter analyzer = new IKSegmenter(reader, useSmart);

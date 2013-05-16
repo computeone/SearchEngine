@@ -80,8 +80,8 @@ public class SaveDocumentThread extends Thread{
 				else{		
 					try {
 						//睡眠10s;
-						logger.info("写文档线程睡眠10s");
-						sleep(10000);
+						logger.info("写文档线程睡眠1s");
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

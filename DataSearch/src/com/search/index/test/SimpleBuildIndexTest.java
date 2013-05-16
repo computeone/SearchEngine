@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.search.DAO.CRUD;
 import com.search.data.Document;
 import com.search.data.Field;
 import com.search.data.IDhandler;
@@ -47,9 +48,12 @@ public class SimpleBuildIndexTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		Document document1=CRUD.selectDocument(65970697666560l);
 		document=new Document(2l);
-		document.addIndex_attribute("keywords", "dongfangbubei");
-		simplebuildindex=new SimpleBuildIndex(document);
+		document.addIndex_attribute("keywords", "dongfangbubei lejjie juewu");
+		document.addIndex_attribute("description", "lejie");
+		document.addIndex_attribute("title", null);
+		simplebuildindex=new SimpleBuildIndex(document1);
 	}
 
 	/**
@@ -85,15 +89,17 @@ public class SimpleBuildIndexTest {
 	 */
 	@Test
 	public void testGetField() throws Exception {
-		simplebuildindex.buildIndex();
-		LinkedList<Field> fields=simplebuildindex.getField();
+		Index index=simplebuildindex.buildIndex();
+		LinkedList<Field> fields=index.getFields();
 		IDhandler idhandler=new IDhandler(1l);
 		for(Field f:fields){
+			System.out.println("field--------------------");
 			idhandler.setID(f.getID());
-			System.out.println(f.getID());
-			System.out.println(idhandler.getCurrent_Document_id());
-			System.out.println(idhandler.getCurrent_Field_id());
-			System.out.println(f.getText());
+			System.out.println("id:"+f.getID());
+			System.out.println("document id:"+idhandler.getCurrent_Document_id());
+			System.out.println("field id:"+idhandler.getCurrent_Field_id());
+			System.out.println("text:"+f.getText());
+			System.out.println("field---------------------------");
 		}
 	}
 
@@ -103,18 +109,18 @@ public class SimpleBuildIndexTest {
 	 */
 	@Test
 	public void testGetTokens() throws Exception {
-		simplebuildindex.buildIndex();
-		LinkedList<Token> tokens=simplebuildindex.getTokens();
+		Index index=simplebuildindex.buildIndex();
+		LinkedList<Token> tokens=index.getTokens();
 		IDhandler idhandler=new IDhandler(1l);
-		System.out.println("------------------------");
+		
 		for(Token t:tokens){
-			
+			System.out.println("------------------------");
 			idhandler.setID(t.getID());
-			System.out.println(t.getID());
-			System.out.println(idhandler.getCurrent_Document_id());
-			System.out.println(idhandler.getCurrent_Field_id());
-			System.out.println(idhandler.getCurrent_Token_id());
-			System.out.println(t.getTerm());
+			System.out.println("id:"+t.getID());
+			System.out.println("document id:"+idhandler.getCurrent_Document_id());
+			System.out.println("field id:"+idhandler.getCurrent_Field_id());
+			System.out.println("token id:"+idhandler.getCurrent_Token_id());
+			System.out.println("text:"+t.getTerm());
 		}
 		System.out.println("-----------------------------");
 	}

@@ -59,8 +59,7 @@ public class DocumentSyncThreadTest {
 		syncthread=new DocumentSyncThread();
 		document=new Document(1l);
 		document.setUrl("http://www.suse.edu.cn");
-		syncthread.run();
-		
+		syncthread.start();
 	}
 
 }

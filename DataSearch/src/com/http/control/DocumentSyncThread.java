@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.LinkedList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,7 +17,7 @@ import com.search.DAO.Connect;
  * @author niubaisui
  *
  */
-public class DocumentSyncThread implements Runnable{
+public class DocumentSyncThread extends Thread{
 
 	private Logger logger=LogManager.getLogger("DocumentSyncThread");
 	private String sql="update document set rank=? where id=?";
@@ -29,6 +28,7 @@ public class DocumentSyncThread implements Runnable{
 	private long min_id=0;
 	private long max_id=0;
 	private Connection con=null;
+	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -40,14 +40,13 @@ public class DocumentSyncThread implements Runnable{
 		}
 		
 		try {
-			logger.info("同步线程先睡眠50s");
-			Thread.sleep(50000);
+			logger.info("同步线程先睡眠100s");
+			Thread.sleep(100000);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		while(true){
-			
+		while(true){			
 			
 			try{
 				//得到最小的id
@@ -56,6 +55,7 @@ public class DocumentSyncThread implements Runnable{
 				while(min_resultset.next()){
 					min_id=min_resultset.getLong("min(id)");
 					min_id=min_id>>40;
+					logger.info("min_id:"+min_id);
 				}
 				
 				//得到最大的id
@@ -64,6 +64,7 @@ public class DocumentSyncThread implements Runnable{
 				while(max_resultset.next()){
 					max_id=max_resultset.getLong("max(id)");
 					max_id=max_id>>40;
+					logger.info("max_id:"+max_id);
 				}
 				
 				//更新rank
@@ -76,7 +77,10 @@ public class DocumentSyncThread implements Runnable{
 					
 					//从document中查询到id对应的url
 					
-					long id=i<<40;				
+					long id=i<<40;
+					logger.info("正在同步id="+id+"的文档");
+					
+					
 					url_stmt.setLong(1, id);
 					ResultSet url_resultset=url_stmt.executeQuery();
 					String url=null;
@@ -92,25 +96,29 @@ public class DocumentSyncThread implements Runnable{
 					}
 					
 					if(rank==-1){
-						logger.info("不需要同步");
-						break;
+						continue;
 					}
 					
 					//更行documnet rank					
 					stmt.setInt(1, rank);
 					stmt.setLong(2, id);
-					stmt.executeUpdate();				
+					stmt.executeUpdate();
+					logger.info("id="+id+"的Document同步成功.");
 				}
 				
 				//睡眠500s
-				logger.info("线程将睡眠500s");
-				Thread.sleep(500000);
+				logger.info("线程将睡眠100s");
+				Thread.sleep(100000);
 				
 			}catch(Exception e){
-				logger.fatal("线程睡眠异常");
+				logger.fatal("线程异常");
 				e.printStackTrace();
 			}
 		}
+	}
+	public static void main(String[] args) {
+		DocumentSyncThread thread=new DocumentSyncThread();
+		thread.start();
 	}
 
 }

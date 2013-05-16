@@ -78,8 +78,11 @@ public class DataBaseCRUD {
 	 */
 	public CrawlUrl query_visitedURL(CrawlUrl url)
 			throws Exception, SQLException {
-		Statement stmt = con.createStatement();
-		stmt.executeQuery("select * from visitedurl where oriUrl='" + url.getOriUrl() + "'");
+		String sql="select * from visitedurl where oriUrl=?";
+		PreparedStatement stmt = con.prepareStatement(sql);
+		stmt.setString(1, url.getOriUrl());
+		stmt.executeQuery();
+		
 		ResultSet rs = stmt.getResultSet();
 		boolean isExist = rs.next();
 		if (!isExist) {
@@ -90,6 +93,8 @@ public class DataBaseCRUD {
 		CrawlUrl crawlurl=new CrawlUrl();
 		crawlurl.setOriUrl(url.getOriUrl());
 		crawlurl.setPriority(priority);
+		
+		rs.close();
 		stmt.close();
 		return crawlurl;
 	}
@@ -99,8 +104,11 @@ public class DataBaseCRUD {
 	 */
 	public CrawlUrl query_unvisitedURL(CrawlUrl url)
 			throws Exception, SQLException {
-		Statement stmt = con.createStatement();
-		stmt.executeQuery("select * from unvisitedurl where oriUrl='" + url.getOriUrl() + "'");
+		String sql="select * from unvisitedurl where oriUrl=?";
+		
+		PreparedStatement stmt = con.prepareStatement(sql);
+		stmt.setString(1, url.getOriUrl());
+		stmt.executeQuery();
 		ResultSet rs = stmt.getResultSet();
 		boolean isExist = rs.next();
 		if (!isExist) {
@@ -111,6 +119,8 @@ public class DataBaseCRUD {
 		CrawlUrl crawlurl=new CrawlUrl();
 		crawlurl.setOriUrl(url.getOriUrl());
 		crawlurl.setPriority(priority);
+		
+		rs.close();
 		stmt.close();
 		return crawlurl;
 	}
@@ -134,12 +144,14 @@ public class DataBaseCRUD {
 			crawlurl.setPriority(priority);
 			crawlurl.setLayer(layer);
 			
+			rs.close();
 			stmt.close();
 			//
 			String sql="delete from unvisitedurl where oriUrl=?";
 			PreparedStatement update_stmt=con.prepareStatement(sql);
 			update_stmt.setString(1, url);
 			update_stmt.executeUpdate();
+			
 			update_stmt.close();
 			
 			return crawlurl;
@@ -148,17 +160,25 @@ public class DataBaseCRUD {
 
 	public void updatedVisitedURL(CrawlUrl url) throws Exception,
 			SQLException {
-		Statement stmt = con.createStatement();
-		stmt.executeUpdate("update visitedurl set priority='" + url.getPriority() + "'"
-				+ "  where oriUrl='" + url.getOriUrl()+ "'");
+		String sql="update visitedurl set priority=? where oriUrl=?";
+		PreparedStatement stmt = con.prepareStatement(sql);
+		stmt.setInt(1, url.getPriority());
+		stmt.setString(2, url.getOriUrl());
+		stmt.executeUpdate();
+
 		stmt.close();
 	}
 
 	public void updatedUNVisitedURL(CrawlUrl url) throws Exception,
 			SQLException {
-		Statement stmt = con.createStatement();
-		stmt.executeUpdate("update unvisitedurl set priority='" + url.getPriority()
-				+ "'" + "where oriUrl='" + url.getOriUrl() + "'");
+		String sql="update unvisitedurl set priority=? where oriUrl=?";
+		
+		PreparedStatement stmt = con.prepareStatement(sql);
+		stmt.setInt(1, url.getPriority());
+		stmt.setString(2, url.getOriUrl());
+		stmt.executeUpdate();
+		
+		stmt.close();
 	}
 
 	public int selectVisited_Size() throws Exception, SQLException {
@@ -169,6 +189,7 @@ public class DataBaseCRUD {
 			int size=rs.getInt("count(oriUrl)");
 			return size;
 		}
+		rs.close();
 		stmt.close();
 		return -1;
 	}
@@ -181,6 +202,7 @@ public class DataBaseCRUD {
 			int size=rs.getInt("count(oriUrl)");
 			return size;
 		}
+		rs.close();
 		stmt.close();
 		return -1;
 	}

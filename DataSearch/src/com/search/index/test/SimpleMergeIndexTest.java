@@ -49,15 +49,16 @@ public class SimpleMergeIndexTest {
 		LinkedList<Document> documents=new LinkedList<Document>();
 		Document document1=new Document(1l);
 		document1.addIndex_attribute("keyword", "¡ÀΩ·");
+		document1.addIndex_attribute("title", null);
 		Document document2=new Document(2l);
-		document2.addIndex_attribute("keyword", "dongfangbubei");
+		document2.addIndex_attribute("keyword", "dongfangbubei lejie");
 		Document document3=new Document(3l);
 		document3.addIndex_attribute("keyword", "lejie");
 		Document document4=new Document(4l);
 		document4.addIndex_attribute("keyword", "aiwo");
 		Document document5=new Document(5l);
 		document5.addIndex_attribute("keyword", "dongfangbubei guliang dongfangbubei");
-		Document document6=new Document(6l);
+		Document document6=new Document(60l);
 		document6.addIndex_attribute("keyword", "dongfangbubei ∞ÆŒ“");
 		
 		documents=new LinkedList<Document>();
@@ -123,7 +124,8 @@ public class SimpleMergeIndexTest {
 		simplemergeindex.mergeIndex();
 		LinkedList<Token_Structure> tokens_structure=simplemergeindex.getToken_Structure();
 		for(Token_Structure s:tokens_structure){
-			System.out.println(s.getTerm());
+			System.out.println("--------------------------");
+			System.out.println("text:"+s.getTerm());
 			System.out.println(s.getFrequency());
 			for(long n:s.getTokens_id()){
 				System.out.println(n);

@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import com.search.Search.ShellSort;
 import com.search.data.Document;
 import com.search.data.Field;
+import com.search.data.IDhandler;
 import com.search.data.Token;
 /*
  * 将大量的索引合并有利于将索引写入数据库
@@ -53,22 +54,44 @@ public class SimpleMergeIndex {
 				
 			LinkedList<Token> temp=new LinkedList<Token>();
 			//将token加入tokens
+			IDhandler idhandler=new IDhandler(1);
 			for(Token token:index.getTokens()){
+//				idhandler.setID(token.getID());
+//				System.out.println("document id:"+idhandler.getCurrent_Document_id()+" field id:"
+//						+idhandler.getCurrent_Field_id()+" offset:"+idhandler.getCurrent_Token_id()
+//						+" term:"+token.getTerm());
 				temp.addLast(token);
 			}
 			
 			ShellSort.Sort(temp	,new TokenCompare());
-			t.addLast(temp);					
+			
+			t.addLast(temp);		
 		}
-		
+		System.out.println("t:"+t.size());
 		// 进行合并排序
 		while(t.size()!=1){
 			LinkedList<LinkedList<Token>> list = new LinkedList<LinkedList<Token>>();
 			list = this.Merge(t);
+			System.out.println("list size:"+list.size());
+//			System.out.println("****************************************************");
+//			for(LinkedList<Token> t1:list){
+//				
+//				IDhandler idhandler =new IDhandler(1);
+//				System.out.println("--------------------------------------------");
+//				for(Token t2:t1){
+//					idhandler.setID(t2.getID());
+//					System.out.println("document id:"+idhandler.getCurrent_Document_id()+" field id:"
+//							+idhandler.getCurrent_Field_id()+" offset:"+idhandler.getCurrent_Token_id()
+//							+" term:"+t2.getTerm());
+//				}
+//				System.out.println("----------------------------------------------");
+//			}
+//			System.out.println("*********************************************");
 			t.clear();
 			while (!list.isEmpty()) {
 				t.addLast(list.pollFirst());
 			}
+			
 		}
 
 		// 转化为一个文件并生成索引
@@ -97,7 +120,8 @@ public class SimpleMergeIndex {
 		}
 		
 		else{
-			for(int i=0;i<tokens.size()/2;i++){
+			int size=tokens.size();
+			for(int i=0;i<size/2;i++){
 				t.addLast(TokenSort.MergeSort(tokens.pollFirst(), tokens.pollLast()));
 			}
 			t.addLast(tokens.pollLast());

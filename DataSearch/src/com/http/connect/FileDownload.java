@@ -107,6 +107,7 @@ public class FileDownload {
 	public void download() throws Exception {
 		logger.info("encoding:"+crawlurl.getCharSet());
 		logger.info("文档类型:"+crawlurl.getType());
+		
 		String[] dirs = this.parseURL();// 解析url
 		SimpleHttpURLParser dirparser = new SimpleHttpURLParser();
 		

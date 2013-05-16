@@ -63,9 +63,16 @@ public class SimpleBuildIndex implements BuildIndex{
 		if(index_attributes.size()!=0){
 			Set<String> keys=index_attributes.keySet();
 			for(String s:keys){
-				Attribute attribute=index_attributes.get(s);
-				Field field=new Field(attribute.getValue(),id,attribute.getIndex());
-				fields.add(field);
+				//判断关键字不为空
+				if(s!=null){
+					Attribute attribute=index_attributes.get(s);
+					
+					//判断值不为空
+					if(attribute.getValue()!=null){
+						Field field=new Field(attribute.getValue(),id,attribute.getIndex());
+						fields.add(field);
+					}
+				}			
 			}
 		}
 		
@@ -78,7 +85,6 @@ public class SimpleBuildIndex implements BuildIndex{
 			analyzer.setContent(f.getText());
 			analyzer.setID(f.getID());
 			LinkedList<Token> t=analyzer.analyzer();
-		
 			Iterator<Token> iterator=t.iterator();
 			while(iterator.hasNext()){
 				tokens.addLast(iterator.next());

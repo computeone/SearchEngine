@@ -35,23 +35,23 @@ public class HtmlParserTest {
 	private static HtmlParser parser;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		HttpConnect httpconnect=new HttpConnect();
-		httpconnect.Connect();
-		httpconnect.printFields();
-		FileDownload filedownload=new FileDownload(httpconnect.getInputStream());
-		filedownload.setCrawlUrl(httpconnect.getCrawlurl());
-		filedownload.download();
-		System.out.println(filedownload.getAbsolutePath());
-		filedownload.printFile();
-		
-		System.out.println("isparser:"+filedownload.isParser());
-		CrawlUrl crawlurl=filedownload.getCrawlUrl();
-		crawlurl.setLayer(1);
-		parser=new HtmlParser(filedownload.getFile(),crawlurl);
-		parser.registerLinkFilterChain(new HtmlLinkFilterChain());
-		URLFilterChain chain=new URLFilterChain();
-		chain.addFilter(new SuseURLFilter());
-		parser.registerURLFilter(chain);
+//		HttpConnect httpconnect=new HttpConnect();
+//		httpconnect.Connect();
+//		httpconnect.printFields();
+//		FileDownload filedownload=new FileDownload(httpconnect.getInputStream());
+//		filedownload.setCrawlUrl(httpconnect.getCrawlurl());
+//		filedownload.download();
+//		System.out.println(filedownload.getAbsolutePath());
+//		filedownload.printFile();
+//		
+//		System.out.println("isparser:"+filedownload.isParser());
+//		CrawlUrl crawlurl=filedownload.getCrawlUrl();
+//		crawlurl.setLayer(1);
+//		parser=new HtmlParser(filedownload.getFile(),crawlurl);
+//		parser.registerLinkFilterChain(new HtmlLinkFilterChain());
+//		URLFilterChain chain=new URLFilterChain();
+//		chain.addFilter(new SuseURLFilter());
+//		parser.registerURLFilter(chain);
 	}
 
 	/**
@@ -66,6 +66,7 @@ public class HtmlParserTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		
 	}
 
 	/**
@@ -87,16 +88,27 @@ public class HtmlParserTest {
 	 */
 	@Test
 	public void testParser() throws Exception {
+		File file=new File("d:\\index.html");
+		CrawlUrl crawlurl=new CrawlUrl();
+		crawlurl.setOriUrl("http://www.baidu.com");
+		crawlurl.setCharSet("gb2312");
+		parser=new HtmlParser(file,crawlurl);
+		HtmlLinkFilterChain chain=new HtmlLinkFilterChain();
+		parser.registerLinkFilterChain(chain);
 		parser.parser();
 		LinkedList<CrawlUrl> links=parser.getLinks();
 		Document document=parser.getDocument();
 		System.out.println(document.getID());
+		String str=new String(document.getIndex_attribute("keywords").getBytes(),"gb2312");
+		System.out.println("niubaisui"+str);
 		System.out.println(document.getDate());
-//		System.out.println(document.getAttribute("title"));
-		System.out.println("---------------------------");
-		for(CrawlUrl link:links){
-			System.out.println(link.getOriUrl());
-		}
+		System.out.println("keywords:"+document.getIndex_attribute("keywords"));
+		System.out.println("title:"+document.getIndex_attribute("title"));
+		System.out.println("description:"+document.getIndex_attribute("description"));
+//		System.out.println("---------------------------");
+//		for(CrawlUrl link:links){
+//			System.out.println(link.getOriUrl());
+//		}
 	}
 
 }

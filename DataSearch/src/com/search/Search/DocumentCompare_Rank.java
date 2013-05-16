@@ -20,13 +20,13 @@ public class DocumentCompare_Rank implements Comparator<Document>{
 		
 		if(Integer.parseInt(matcher1)==Integer.parseInt(matcher2)){
 			if(document1.getRanks()>document2.getRanks()){
-				return -1;
+				return 1;
 			}
 			else if(document1.getRanks()==document2.getRanks()){
 				return 0;
 			}
 			else{
-				return 1;
+				return -1;
 			}
 		}
 		else if(Integer.parseInt(matcher1)>Integer.parseInt(matcher2)){

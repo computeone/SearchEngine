@@ -8,8 +8,8 @@ public class DataBaseInit {
 	public void init() throws Exception, SQLException {
 		Connection con = Connect.getConnection();
 		Statement stmt = con.createStatement();
-		stmt.execute("create table Document(id bigint not null primary key,rank int," +
-				"url text,create_date timestamp,store_attributes longblob,index_attributes longblob);");
+//		stmt.execute("create table Document(id bigint not null primary key,rank int," +
+//				"url text,create_date timestamp,store_attributes longblob,index_attributes longblob);");
 		stmt.execute(" create table Field(id bigint not null primary key,priority int," +
 				"content text,attributes longblob);");
 

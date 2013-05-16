@@ -27,7 +27,7 @@ public class SimpleAnalyzerTest {
 	 * @throws java.lang.Exception
 	 */
 	private static SimpleAnalyzer simpleanalyzer;
-	private static String str="Internet中有一个专门组织IANA来确认标准的MIME类型";
+	private static String str="学校组织师生观看电影《钱学森》_综合_四川理工学院";
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		simpleanalyzer=new SimpleAnalyzer(str,true,0);

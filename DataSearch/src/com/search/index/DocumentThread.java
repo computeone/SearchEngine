@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,14 +21,15 @@ import com.search.data.Document;
 public class DocumentThread extends Thread {
 	private LinkedList<Document> documents;
 	private Logger logger=LogManager.getLogger("DocumentThread");
-	
+	private CountDownLatch latch;
 	private String SaveDocument_sql() throws Exception, SQLException {
 		String sql = "insert into Document(id,rank,url,create_date,store_attributes,index_attributes) values (?,?,?,?,?,?)";
 		return sql;
 	}
 	
-	public DocumentThread(LinkedList<Document> documents){
+	public DocumentThread(LinkedList<Document> documents,CountDownLatch  latch){
 		this.documents=documents;
+		this.latch=latch;
 	}
 
 	public void run() {
@@ -48,6 +50,10 @@ public class DocumentThread extends Thread {
 				PreparedStatement stmt = con.prepareStatement(this.SaveDocument_sql());
 				
 				logger.info("writing id="+document.getID()+" document");
+				logger.info("url:"+document.getUrl());
+				logger.info("create date:"+document.getDate());
+//				logger.info("keywords:"+document.getIndex_attribute("keywords"));
+//				logger.info("description:"+document.getIndex_attribute("description"));
 				
 				//–Ú¡–ªØ
 				ByteArrayOutputStream attributes_out=new ByteArrayOutputStream();
@@ -76,6 +82,7 @@ public class DocumentThread extends Thread {
 		}
 		try {
 			con.close();
+			latch.countDown();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

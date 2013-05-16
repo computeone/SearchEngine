@@ -80,7 +80,7 @@ public class DocumentThreadTest {
 		documents.add(document5);
 		documents.add(document6);
 		
-		document_thread=new DocumentThread(documents);
+		document_thread=new DocumentThread(documents,null);
 		document_thread.run();
 	}
 
