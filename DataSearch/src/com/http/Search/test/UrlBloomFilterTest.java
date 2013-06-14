@@ -3,7 +3,6 @@
  */
 package com.http.Search.test;
 
-import static org.junit.Assert.*;
 
 import org.junit.After;
 import org.junit.AfterClass;

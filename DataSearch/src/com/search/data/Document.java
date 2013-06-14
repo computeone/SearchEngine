@@ -2,7 +2,6 @@ package com.search.data;
 
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;

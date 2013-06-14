@@ -16,7 +16,7 @@ import com.html.parser.URLFilterChain;
 
 /**
  * @author niubaisui
- *
+ * 
  */
 public class URLFilterChainTest {
 
@@ -24,9 +24,10 @@ public class URLFilterChainTest {
 	 * @throws java.lang.Exception
 	 */
 	private static URLFilterChain chain;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		chain=new URLFilterChain();
+		chain = new URLFilterChain();
 	}
 
 	/**
@@ -34,7 +35,7 @@ public class URLFilterChainTest {
 	 */
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		
+
 	}
 
 	/**
@@ -52,19 +53,22 @@ public class URLFilterChainTest {
 	}
 
 	/**
-	 * Test method for {@link com.html.parser.URLFilterChain#addFilter(com.html.parser.URLFilter)}.
+	 * Test method for
+	 * {@link com.html.parser.URLFilterChain#addFilter(com.html.parser.URLFilter)}
+	 * .
 	 */
 	@Test
 	public void testAddFilter() {
 	}
 
 	/**
-	 * Test method for {@link com.html.parser.URLFilterChain#filter(java.lang.String)}.
+	 * Test method for
+	 * {@link com.html.parser.URLFilterChain#filter(java.lang.String)}.
 	 */
 	@Test
 	public void testFilter() {
-		String str="http://www.suse.edu.cn";
-		SuseURLFilter suse=new SuseURLFilter();
+		String str = "http://www.suse.edu.cn";
+		SuseURLFilter suse = new SuseURLFilter();
 		chain.addFilter(suse);
 		assertTrue(chain.filter(str));
 	}

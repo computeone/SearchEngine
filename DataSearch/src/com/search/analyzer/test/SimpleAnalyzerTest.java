@@ -3,7 +3,6 @@
  */
 package com.search.analyzer.test;
 
-import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.LinkedList;

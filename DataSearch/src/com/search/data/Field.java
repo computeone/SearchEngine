@@ -1,7 +1,6 @@
 package com.search.data;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 public class Field {
 	private long ID = 1;

@@ -25,7 +25,7 @@ public class Connect {
 			Class.forName("com.mysql.jdbc.Driver");
 		}
 		Connection connection = DriverManager
-				.getConnection("jdbc:mysql://localhost:3306/niubaisui","root", "niubaisui");
+				.getConnection("jdbc:mysql://localhost:3306/search","root", "niubaisui");
 		return connection;
 	}
 

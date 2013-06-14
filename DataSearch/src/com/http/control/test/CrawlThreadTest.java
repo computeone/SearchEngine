@@ -3,9 +3,7 @@
  */
 package com.http.control.test;
 
-import static org.junit.Assert.*;
 
-import java.io.File;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -27,11 +25,10 @@ public class CrawlThreadTest {
 	 * @throws java.lang.Exception
 	 */
 	private static CrawlUrl crawlurl;
-	private static HttpConnectPool pool;
 	private static CrawlThread crawlthread;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		pool=HttpConnectPool.GetHttpConnectPool(10);
+		HttpConnectPool.GetHttpConnectPool(10);
 		crawlurl=new CrawlUrl();
 		crawlurl.setOriUrl("http://www.baidu.com");
 		crawlthread=new CrawlThread(crawlurl);

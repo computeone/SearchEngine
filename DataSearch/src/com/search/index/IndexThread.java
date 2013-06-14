@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 import com.search.DAO.CRUD;
 import com.search.DAO.Connect;
 import com.search.Search.ShellSort;
-import com.search.data.IDhandler;
 
 public class IndexThread extends Thread {
 	private LinkedList<Token_Structure> indexs;

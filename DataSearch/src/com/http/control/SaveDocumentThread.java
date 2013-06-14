@@ -43,7 +43,11 @@ public class SaveDocumentThread extends Thread{
 					try {
 						//取出一个Document
 						Document document=CrawlWebCentralThread.webpages.nextDocument();
-						
+						while(document==null){
+							logger.info("写文档线程睡眠1s");
+							Thread.sleep(1000);
+							document=CrawlWebCentralThread.webpages.nextDocument();
+						}
 						PreparedStatement stmt = con.prepareStatement(sql);
 						
 						logger.info("writing id="+document.getID()+" document");

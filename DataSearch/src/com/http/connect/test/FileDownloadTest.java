@@ -18,7 +18,7 @@ import com.http.connect.HttpConnect;
 
 /**
  * @author niubaisui
- *
+ * 
  */
 public class FileDownloadTest {
 
@@ -26,21 +26,25 @@ public class FileDownloadTest {
 	 * @throws java.lang.Exception
 	 */
 	private static FileDownload filedownload;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		String[] url=new String[5];
-		url[0]="http://www.suse.edu.cn";
-		url[1]="http://bc.ifeng.com/main/c?db=ifeng&bid=18587,18272," +
-				"3995&cid=2268,46,1&sid=38519&advid=548&camid=4114&show" +
-				"=ignore&url=http://www.533.com/hfsxy1/";
-		CrawlUrl crawlurl=new CrawlUrl();
-		crawlurl.setOriUrl(url[0]);
+		String[] url = new String[5];
+		url[0] = "http://www.suse.edu.cn";
+		url[1] = "http://bc.ifeng.com/main/c?db=ifeng&bid=18587,18272,"
+				+ "3995&cid=2268,46,1&sid=38519&advid=548&camid=4114&show"
+				+ "=ignore&url=http://www.533.com/hfsxy1/";
+		url[2]="http://hxx.suse.edu.cn/list-49.aspx/view-1198.aspx";
+		url[3]="http://www.suse.edu.cn/view-9868.aspx/view-6557.aspx";
+		url[4]="http://yjs.suse.edu.cn/view-461.aspx/list-9.aspx";
+		CrawlUrl crawlurl = new CrawlUrl();
+		crawlurl.setOriUrl(url[4]);
 		crawlurl.setLayer(1);
-		HttpConnect httpconnect=new HttpConnect(crawlurl);
+		HttpConnect httpconnect = new HttpConnect(crawlurl);
 		httpconnect.Connect();
 		httpconnect.printFields();
 		System.out.println(httpconnect.getCrawlurl().getOriUrl());
-		filedownload=new FileDownload(httpconnect.getInputStream());
+		filedownload = new FileDownload(httpconnect.getInputStream());
 		filedownload.setCrawlUrl(httpconnect.getCrawlurl());
 		filedownload.download();
 	}
@@ -78,8 +82,8 @@ public class FileDownloadTest {
 	 */
 	@Ignore
 	public void testGetAbsolutePath() {
-		String filepath=filedownload.getAbsolutePath();
-		System.out.println("absolutepath:"+filepath);
+		String filepath = filedownload.getAbsolutePath();
+		System.out.println("absolutepath:" + filepath);
 	}
 
 	/**
@@ -87,19 +91,20 @@ public class FileDownloadTest {
 	 */
 	@Ignore
 	public void testGetEncoding() {
-		String encoding=filedownload.getEncoding();
+		String encoding = filedownload.getEncoding();
 		System.out.println(encoding);
 		Assert.assertTrue(encoding.equals("utf-8"));
 	}
 
 	/**
 	 * Test method for {@link com.http.connect.FileDownload#parseURL()}.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	@Ignore
 	public void testParseURL() throws Exception {
-		String[] dir=filedownload.parseURL();
-		for(String s:dir){
+		String[] dir = filedownload.parseURL();
+		for (String s : dir) {
 			System.out.println(s);
 		}
 	}
@@ -121,7 +126,8 @@ public class FileDownloadTest {
 
 	/**
 	 * Test method for {@link com.http.connect.FileDownload#printFile()}.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	@Test
 	public void testPrintFile() throws Exception {

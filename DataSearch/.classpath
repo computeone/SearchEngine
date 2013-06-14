@@ -6,12 +6,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Search"/>
 	<classpathentry kind="lib" path="D:/Java/eclipse-java-juno-SR1-win32/WorkSpace/search_lib/database/mysql-connector-java-5.1.24-bin.jar"/>
-	<classpathentry kind="lib" path="D:/Java/eclipse-java-juno-SR1-win32/WorkSpace/search_lib/httpconnect/commons-codec-1.6.jar"/>
-	<classpathentry kind="lib" path="D:/Java/eclipse-java-juno-SR1-win32/WorkSpace/search_lib/httpconnect/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="D:/Java/eclipse-java-juno-SR1-win32/WorkSpace/search_lib/httpconnect/fluent-hc-4.2.5.jar"/>
-	<classpathentry kind="lib" path="D:/Java/eclipse-java-juno-SR1-win32/WorkSpace/search_lib/httpconnect/httpclient-4.2.5.jar"/>
-	<classpathentry kind="lib" path="D:/Java/eclipse-java-juno-SR1-win32/WorkSpace/search_lib/httpconnect/httpclient-cache-4.2.5.jar"/>
-	<classpathentry kind="lib" path="D:/Java/eclipse-java-juno-SR1-win32/WorkSpace/search_lib/httpconnect/httpcore-4.2.4.jar"/>
-	<classpathentry kind="lib" path="D:/Java/eclipse-java-juno-SR1-win32/WorkSpace/search_lib/httpconnect/httpmime-4.2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -7,8 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.http.Search.BreadthFirstTraversal;
 import com.http.Search.CrawlUrl;
-import com.http.constant.HttpResponseHeaderConstant;
 
 /*
  * HTTP连接主要的类

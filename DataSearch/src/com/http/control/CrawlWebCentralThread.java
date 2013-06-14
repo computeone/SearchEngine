@@ -1,7 +1,6 @@
 package com.http.control;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -132,8 +131,11 @@ public class CrawlWebCentralThread {
 		CrawlWebCentralThread.rootdir = rootdir;
 		webcontrol.Init(initurl);
 		//写文档线程
-		SaveDocumentThread saveDocument=new SaveDocumentThread();
-		saveDocument.start();
+		for(int i=0;i<5;i++){
+			SaveDocumentThread saveDocument=new SaveDocumentThread();
+			saveDocument.start();
+		}
+		
 		DocumentSyncThread documentSync=new DocumentSyncThread();
 		documentSync.start();
 		//同步文档线程

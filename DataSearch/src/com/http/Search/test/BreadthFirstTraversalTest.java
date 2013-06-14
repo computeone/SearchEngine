@@ -24,14 +24,14 @@ public class BreadthFirstTraversalTest {
 	/**
 	 * @throws java.lang.Exception
 	 */
-	private static BreadthFirstTraversal breadthfirsttraversal;
+//	private static BreadthFirstTraversal breadthfirsttraversal=null;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		CrawlUrl crawlurl=new CrawlUrl();
 		crawlurl.setOriUrl("http://www.suse.edu.cn");
 		CrawlUrl[] initurl=new CrawlUrl[1];
 		initurl[0]=crawlurl;
-		breadthfirsttraversal=BreadthFirstTraversal.getBreadthFirstTraversal(initurl);
+//		breadthfirsttraversal=BreadthFirstTraversal.getBreadthFirstTraversal(initurl);
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class BreadthFirstTraversalTest {
 	 */
 	@Ignore
 	public void testGetUNVisitedURL() {
-		CrawlUrl crawlurl=BreadthFirstTraversal.getUNVisitedURL();
+//		CrawlUrl crawlurl=BreadthFirstTraversal.getUNVisitedURL();
 		
 	}
 

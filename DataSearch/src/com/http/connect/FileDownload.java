@@ -111,20 +111,17 @@ public class FileDownload {
 		String[] dirs = this.parseURL();// 解析url
 		SimpleHttpURLParser dirparser = new SimpleHttpURLParser();
 		
-		
-		
-		
 		File hostdir = new File(rootdir + "/" + host);
 		hostdir.mkdirs();
 		String currentdir = rootdir + "/" + host;
-		String filename=null;
+		String filename="index.html";
 		if(dirs==null){
 			filename="index.html";
 		}
 		else{
 			// 检查是不是含有非法字符
 			for (int i = 0; i < dirs.length; i++) {
-				dirs[i] = dirparser.deleteIllegalChar(dirs[i]);
+				dirs[i] = dirparser.deleteIllegalChar(dirs[i])+"_dir";
 				//长度超过256则截断
 				if (dirs[i].length() > 256) {
 					dirs[i] = dirs[i].substring(0, 256);
@@ -137,10 +134,16 @@ public class FileDownload {
 				currentdir = currentdir + "/" + dirs[i];
 			}
 			filename=dirs[dirs.length-1];
+			filename=filename.substring(0, filename.length()-4);
 		}
 			
 		// 写到相应的文件中
+		File d=new File(currentdir);
+		boolean b=d.mkdirs();
+		logger.info("下载到目录:"+d.getAbsolutePath()+"-->"+b);
 		file = new File(currentdir+"/"+filename);
+		boolean isCreateFile=file.createNewFile();
+		logger.info("创建文件:"+isCreateFile);
 		logger.info("下载文件绝对路径:"+file.getAbsolutePath());
 		
 		
@@ -152,6 +155,7 @@ public class FileDownload {
 		}
 		in.close();
 		fout.close();
+		logger.info("写文件成功");
 	}
 
 	

@@ -3,7 +3,6 @@
  */
 package com.search.index.test;
 
-import static org.junit.Assert.*;
 
 import java.util.LinkedList;
 
@@ -14,7 +13,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.search.data.Document;
-import com.search.data.PageIDOverException;
 import com.search.index.FieldThread;
 import com.search.index.SimpleMergeIndex;
 

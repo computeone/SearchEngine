@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.search.data.Document;
 import com.search.data.Field;
-import com.search.data.IDhandler;
 
 /**
  * @author niubaisui

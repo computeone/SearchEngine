@@ -7,7 +7,7 @@ public class SimpleHttpURLParser implements HttpURLParser {
 	private String url;
 	private static String regex = "\\Ahttps?://(([\\w+\\.]+)(:\\d{1,5})?/{0,1}(.*)?)\\Z";
 	private static String regexpath = "/";
-	private static String illegalcharacter = "[\\<>:%*/|&?\\s]";
+	private static String illegalcharacter = "[*\\<>.:%-/|&?\\s]";
 	private Pattern pattern;
 
 	public SimpleHttpURLParser() {

@@ -24,10 +24,6 @@ import com.search.index.Token_Structure;
  */
 public class SimpleMergeIndexTest {
 
-	/**
-	 * @throws java.lang.Exception
-	 */
-	private LinkedList<Document> documents;
 	private SimpleMergeIndex simplemergeindex;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -78,7 +74,6 @@ public class SimpleMergeIndexTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		documents=null;
 		simplemergeindex=null;
 		
 	}

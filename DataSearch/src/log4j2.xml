@@ -31,7 +31,6 @@
  
     <root level="trace">
         <appender-ref ref="Console"/>
-        <appender-ref  ref="rollingfile"></appender-ref>
     </root>
   </loggers>
 </configuration>

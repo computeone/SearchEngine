@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -103,6 +104,7 @@ public class CRUD {
 				str.add(resultset.getString("content"));
 			}
 		}
+		stmt.close();
 		con.close();
 		return str;
 	}
@@ -160,16 +162,15 @@ public class CRUD {
 		
 	}
 	
-	//查询得到一系列Document
-	public static LinkedList<Document> selectDocuments(LinkedList<Field> fields) throws SQLException, IOException, ClassNotFoundException, PageIDOverException{
+	//查询得到一些列的Document
+	public static ArrayList<Document> queryDocuments(LinkedList<Field> fields) throws SQLException, Exception{
 		Connection con=Connect.getConnection();
-		LinkedList<Document> documents=new LinkedList<Document>();
+		ArrayList<Document> documents=new ArrayList<Document>();
 		String sql="select * from document where id=?";
 		
 		Iterator<Field> iterator=fields.iterator();
-		
+		PreparedStatement stmt=con.prepareStatement(sql);
 		while(iterator.hasNext()){
-			PreparedStatement stmt=con.prepareStatement(sql);
 			Field field=iterator.next();	
 			long id=field.getID();
 			IDhandler idhandler=new IDhandler(id);		
@@ -214,9 +215,73 @@ public class CRUD {
 				document.addStore_attribute("matcher", field.getAttriubte("matcher"));
 				document.addStore_attribute("index", String.valueOf(idhandler.getCurrent_Field_id()));
 				documents.add(document);
-			}		
-			
+				
+			}
+			result.close();				
 		}
+		stmt.close();
+		con.close();
+		return documents;
+	}
+	//查询得到一系列Document
+	public static LinkedList<Document> selectDocuments(LinkedList<Field> fields) throws SQLException, IOException, ClassNotFoundException, PageIDOverException{
+		Connection con=Connect.getConnection();
+		LinkedList<Document> documents=new LinkedList<Document>();
+		String sql="select * from document where id=?";
+		
+		Iterator<Field> iterator=fields.iterator();
+		PreparedStatement stmt=con.prepareStatement(sql);
+		while(iterator.hasNext()){
+			Field field=iterator.next();	
+			long id=field.getID();
+			IDhandler idhandler=new IDhandler(id);		
+			stmt.setLong(1,idhandler.getDocumnent_id());
+			stmt.execute();
+			
+			
+			ResultSet result=stmt.getResultSet();
+			//反序列化
+			while(result.next()){
+				Document document=new Document(result.getLong("id")>>40);
+				//反序列化attributes
+				ByteArrayInputStream attributes_in=new ByteArrayInputStream(result.getBytes("store_attributes"));
+				ObjectInputStream attributes_object=new ObjectInputStream(attributes_in);
+				@SuppressWarnings("unchecked")
+				HashMap<String,String> attributes=(HashMap<String,String>)attributes_object.readObject();
+				
+				//反序列化index_number
+				ByteArrayInputStream indexnumber_in=new ByteArrayInputStream(result.getBytes("index_attributes"));
+				ObjectInputStream indexnumber_object=new ObjectInputStream(indexnumber_in);
+				@SuppressWarnings("unchecked")
+				LinkedHashMap<String,Attribute> index_attributes=(LinkedHashMap<String,Attribute>)indexnumber_object.readObject();
+				
+
+				document.setRanks(result.getInt("rank"));
+				document.setUrl(result.getString("url"));
+				document.setDate(result.getTimestamp("create_date"));
+				
+				//添加store_attribute
+				Set<String> keys=attributes.keySet();
+				for(String key:keys){
+					document.addStore_attribute(key, attributes.get(key));
+				}
+				
+				//添加index_attribute
+				Set<String>  index_keys=index_attributes.keySet();
+				for(String key:index_keys){
+					document.addIndex_attribute(key, index_attributes.get(key).getValue());
+				}
+				
+				//field复制matcher属性到document
+				document.addStore_attribute("matcher", field.getAttriubte("matcher"));
+				document.addStore_attribute("index", String.valueOf(idhandler.getCurrent_Field_id()));
+				documents.add(document);
+				
+			}
+			result.close();				
+		}
+		stmt.close();
+		con.close();
 		return documents;
 	}
 

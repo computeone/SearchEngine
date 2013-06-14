@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import com.search.Search.ShellSort;
 import com.search.data.Document;
 import com.search.data.Field;
-import com.search.data.IDhandler;
 import com.search.data.Token;
 /*
  * 将大量的索引合并有利于将索引写入数据库
@@ -54,7 +53,6 @@ public class SimpleMergeIndex {
 				
 			LinkedList<Token> temp=new LinkedList<Token>();
 			//将token加入tokens
-			IDhandler idhandler=new IDhandler(1);
 			for(Token token:index.getTokens()){
 //				idhandler.setID(token.getID());
 //				System.out.println("document id:"+idhandler.getCurrent_Document_id()+" field id:"

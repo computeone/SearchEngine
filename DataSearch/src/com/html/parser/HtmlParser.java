@@ -5,8 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -87,10 +87,10 @@ public class HtmlParser implements DocumentParser {
 
 	public boolean matcher_meta(String str) {
 
-		String regex1=".*name=\"(.*)\".*content=\"(.*)\".*";
-		String regex2=".*content=\"(.*)\".*name=\"(.*)\".*";
-		String regex3=".*http-equiv=\"(.*)\".*content=\"(.*)\".*";
-		String regex4=".*content=\"(.*)\".*http-equiv=\"(.*)\".*";
+		String regex1=".*name=\"(.*)\".*content=\"([^\"]*)\".*";
+		String regex2=".*content=\"([^\"]*)\".*name=\"(.*)\".*";
+		String regex3=".*http-equiv=\"(.*)\".*content=\"([^\"]*)\".*";
+		String regex4=".*content=\"([^\"]*)\".*http-equiv=\"(.*)\".*";
 		
 		
 		// 正则表达式来识别超链接
@@ -309,7 +309,7 @@ public class HtmlParser implements DocumentParser {
 	}
 	
 	public boolean matcher_title(String str){
-		String regex="<title.*>(.*)</title>";
+		String regex="<title.*>([^\"]*)</title>";
 		Matcher matcher=Pattern.compile(regex,Pattern.DOTALL).matcher(str);
 		if(matcher.matches()){
 			String title=matcher.group(1).replaceAll("\\s", "");
@@ -363,23 +363,125 @@ public class HtmlParser implements DocumentParser {
 		}
 	}
 	
-	private void parserEncoding(File file) throws Exception{
+	private void parserTitle(File file) throws IOException{
 		FileInputStream in=new FileInputStream(file);
+		InputStreamReader reader=new InputStreamReader(in,"utf-8");
 		String str="";
 		int count=0;
 		int ch=0;
-		while((ch=in.read())!=-1){
+		while((ch=reader.read())!=-1){
 			char c=(char)ch;
 			if(c=='\n'){
 				count++;
 				if(count==50){
 					in.close();
+					reader.close();
 					break;
 				}
 			}			
 			str=str+c;
 		}
 		in.close();
+		reader.close();
+		//
+		Matcher matcher=Pattern.compile(".*<title.*>([^\"]*)</title>.*", Pattern.DOTALL).matcher(str);
+		if(matcher.matches()){
+			String title=matcher.group(1).replaceAll("\\s", "");
+			logger.info("解析的title:"+title);
+			document.addIndex_attribute("title", title);
+			
+		}
+	}
+	
+	private void parserKeywords(File file) throws IOException{
+		FileInputStream in=new FileInputStream(file);
+		InputStreamReader reader=new InputStreamReader(in,"utf-8");
+		String str="";
+		int count=0;
+		int ch=0;
+		while((ch=reader.read())!=-1){
+			char c=(char)ch;
+			if(c=='\n'){
+				count++;
+				if(count==50){
+					in.close();
+					reader.close();
+					break;
+				}
+			}			
+			str=str+c;
+		}
+		in.close();
+		reader.close();
+		
+		//
+		Matcher matcher=Pattern.compile(".*name=\"keywords\"\\s+content=\"([^\"]*)\".*",Pattern.DOTALL).matcher(str);
+		if(matcher.matches()){
+			logger.info("解析的keywords:"+matcher.group(1));		
+			document.addIndex_attribute("keywords", matcher.group(1));
+		}
+		else{
+			Matcher matcher1=Pattern.compile(".*content=\"([^\"]*)\"\\s+name=\"keywords\".*",Pattern.DOTALL).matcher(str);
+			if(matcher1.matches()){
+				logger.info("解析的keywords:"+matcher1.group(1));
+				document.addIndex_attribute("keywords", matcher1.group(1));
+			}
+		}
+	}
+	
+	private void parserDescription(File file) throws IOException{
+		FileInputStream in=new FileInputStream(file);
+		InputStreamReader reader=new InputStreamReader(in,"utf-8");
+		String str="";
+		int count=0;
+		int ch=0;
+		while((ch=reader.read())!=-1){
+			char c=(char)ch;
+			if(c=='\n'){
+				count++;
+				if(count==50){
+					in.close();
+					reader.close();
+					break;
+				}
+			}			
+			str=str+c;
+		}
+		in.close();
+		reader.close();
+		//
+		Matcher matcher=Pattern.compile(".*name=\"description\"\\s+content=\"([^\"]*)\".*",Pattern.DOTALL).matcher(str);
+		if(matcher.matches()){
+			logger.info("解析的Description:"+matcher.group(1));
+			document.addIndex_attribute("description", matcher.group(1));
+		}else{
+			Matcher matcher1=Pattern.compile("", Pattern.DOTALL).matcher(str);
+			if(matcher1.matches()){
+				logger.info("解析的Description:"+matcher1.group(1));
+				document.addIndex_attribute("description", matcher1.group(1));
+			}
+		}
+	}
+	private void parserEncoding(File file) throws Exception{
+		FileInputStream in=new FileInputStream(file);
+		InputStreamReader reader=new InputStreamReader(in);
+		String str="";
+		int count=0;
+		int ch=0;
+		while((ch=reader.read())!=-1){
+			char c=(char)ch;
+			if(c=='\n'){
+				count++;
+				if(count==50){
+					in.close();
+					reader.close();
+					break;
+				}
+			}			
+			str=str+c;
+		}
+		in.close();
+		reader.close();
 		//
 		Matcher matcher=Pattern.compile(".*charset=\"?([\\w-]+)\".*", Pattern.DOTALL).matcher(str);
 		if(matcher.matches()){
@@ -444,6 +546,15 @@ public class HtmlParser implements DocumentParser {
 				else if(matcher_frame(s));
 				else if(matcher_iframe(s));
 			}
+			
+			//如果charset是gb2312则解析编码会出现乱码，于是纠正
+			if(encoding.equals("gb2312")||encoding.equals("gbk")){
+				parserTitle(file);
+				parserKeywords(file);
+				parserDescription(file);
+			}
+			
+			//
 			CrawlWebCentralThread.addWebPage(document);
 			logger.info("写入文档成功");
 			logger.info("解析文档成功");

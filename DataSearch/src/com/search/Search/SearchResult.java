@@ -1,6 +1,5 @@
 package com.search.Search;
 
-import com.search.data.Field;
 
 /*
  * 搜索得到的结果

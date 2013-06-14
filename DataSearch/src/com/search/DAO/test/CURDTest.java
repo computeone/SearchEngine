@@ -4,9 +4,7 @@
 package com.search.DAO.test;
 
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
+
 import java.sql.SQLException;
 
 import org.junit.After;
