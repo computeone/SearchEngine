@@ -1,4 +1,4 @@
-package com.search.DAO;
+package com.search.dao;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

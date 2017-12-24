@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.search.Search.test;
+package com.search.search.test;
 
 import static org.junit.Assert.*;
 

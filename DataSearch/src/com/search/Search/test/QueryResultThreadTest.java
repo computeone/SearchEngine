@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.search.Search.test;
+package com.search.search.test;
 
 
 import java.util.LinkedList;
@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.search.Search.QueryFieldThread;
+import com.search.search.QueryFieldThread;
 import com.search.data.Field;
 
 /**

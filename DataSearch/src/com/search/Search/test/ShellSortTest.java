@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.search.Search.test;
+package com.search.search.test;
 
 
 import java.util.LinkedList;
@@ -12,8 +12,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.search.Search.FieldCompare_Matcher;
-import com.search.Search.ShellSort;
+import com.search.search.FieldCompare_Matcher;
+import com.common.*;
 import com.search.data.Field;
 import com.search.data.FieldIDOverException;
 

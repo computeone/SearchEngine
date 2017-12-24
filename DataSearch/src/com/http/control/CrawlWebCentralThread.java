@@ -10,9 +10,9 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
-import com.http.Search.BreadthFirstTraversal;
-import com.http.Search.CrawlUrl;
-import com.http.Search.WebPage;
+import com.http.traversal.BreadthFirstTraversal;
+import com.http.traversal.CrawlUrl;
+import com.http.traversal.WebPage;
 import com.http.connect.HttpConnectPool;
 import com.search.data.Document;
 
@@ -25,12 +25,12 @@ public class CrawlWebCentralThread {
 			.getName());
 	private Marker Web_Central = MarkerManager.getMarker("WEB_CENTRAL");
 	public HttpConnectPool httpconnectpool;
-	//Document µÄĞòºÅ
+	//Document çš„åºå·
 	public static int document_id=1;
-	//ÅÀĞĞÏß³Ì³Ø
+	//çˆ¬è¡Œçº¿ç¨‹æ± 
 	private CrawlThreadPool pool;
 	public static String rootdir;
-	//ÎÄ¼ş¼ÆÊı
+	//æ–‡ä»¶è®¡æ•°
 	public static long filenumber = 0;
 	public static WebPage webpages=new WebPage();
 
@@ -38,7 +38,7 @@ public class CrawlWebCentralThread {
 		CrawlWebCentralThread.webpages.addDocument(document);
 	}
 
-	//½«DocumentĞ´ÈëÊı¾İ¿â
+	//å°†Documentå†™å…¥æ•°æ®åº“
 	public  void writeWebPage() throws IOException {
 		String path = "d:\\search";
 		File dir=new File(path);
@@ -64,7 +64,7 @@ public class CrawlWebCentralThread {
 					fileout.write("null".getBytes());
 				}
 				fileout.write("\n".getBytes());
-			//Ğ´keyword
+			//å†™keyword
 				fileout.write("keywords".getBytes());
 				if(document.getIndex_attribute("keywords")!=null){
 					fileout.write(document.getIndex_count("keywords"));
@@ -92,24 +92,24 @@ public class CrawlWebCentralThread {
 		logger.info(Web_Central, "Spider Start running...");
 	}
 
-	//³õÊ¼»¯ÍøÂçÖ©ÖëÅÀĞĞÆ÷
+	//åˆå§‹åŒ–ç½‘ç»œèœ˜è››çˆ¬è¡Œå™¨
 	public void Init(CrawlUrl[] initurl) throws SQLException, Exception {
 		if (initurl == null || rootdir == null) {
 			logger.error("initurl or rootdir null");
 			System.exit(0);
 		}
-		//³õÊ¼»¯httpÁ¬½Ó³Ø
+		//åˆå§‹åŒ–httpè¿æ¥æ± 
 		httpconnectpool = HttpConnectPool.GetHttpConnectPool(20);
-		//³õÊ¼»¯±éÀúÀà
+		//åˆå§‹åŒ–éå†ç±»
 		BreadthFirstTraversal traversal = BreadthFirstTraversal
 				.getBreadthFirstTraversal(initurl);
-		//³õÊ¼»¯ÅÀĞĞÏß³Ì³Ø
+		//åˆå§‹åŒ–çˆ¬è¡Œçº¿ç¨‹æ± 
 		CrawlThreadPool pool = CrawlThreadPool.getCrawlthreadpool();
 		this.pool = pool;
 		traversal.setCrawlThreadPool(pool);
 		
 		try {
-			//¿ªÊ¼ÅÀĞĞ
+			//å¼€å§‹çˆ¬è¡Œ
 			traversal.Traversal();
 		} catch (Exception e) {
 			logger.fatal(Web_Central, "BreadFirstTraversal occur exception");
@@ -130,7 +130,7 @@ public class CrawlWebCentralThread {
 		
 		CrawlWebCentralThread.rootdir = rootdir;
 		webcontrol.Init(initurl);
-		//Ğ´ÎÄµµÏß³Ì
+		//å†™æ–‡æ¡£çº¿ç¨‹
 		for(int i=0;i<5;i++){
 			SaveDocumentThread saveDocument=new SaveDocumentThread();
 			saveDocument.start();
@@ -138,18 +138,18 @@ public class CrawlWebCentralThread {
 		
 		DocumentSyncThread documentSync=new DocumentSyncThread();
 		documentSync.start();
-		//Í¬²½ÎÄµµÏß³Ì
+		//åŒæ­¥æ–‡æ¡£çº¿ç¨‹
 		
 		
 		/*
-		 * ÅÀĞĞÏß³ÌÊıÁ¿²ßÂÔ
+		 * çˆ¬è¡Œçº¿ç¨‹æ•°é‡ç­–ç•¥
 		 */
 		while (true) {
-			// ¹¹ÔìÏß³ÌµÄ²ßÂÔÊÇµ±Ã»ÓĞ·ÃÎÊÁĞ±íÖĞµÄurl´óÓÚ100*Ïß³Ì³ØÖĞÏß³ÌÊÇ´´½¨Ïß³Ì£¬µ«ÊÇÏß³ÌÊı²»ÄÜ³¬¹ı15¸ö
+			// æ„é€ çº¿ç¨‹çš„ç­–ç•¥æ˜¯å½“æ²¡æœ‰è®¿é—®åˆ—è¡¨ä¸­çš„urlå¤§äº100*çº¿ç¨‹æ± ä¸­çº¿ç¨‹æ˜¯åˆ›å»ºçº¿ç¨‹ï¼Œä½†æ˜¯çº¿ç¨‹æ•°ä¸èƒ½è¶…è¿‡15ä¸ª
 			logger.info("httpconnectpoolsize:"+webcontrol.httpconnectpool.getPOOLSIZE());
-			logger.info("Î´·ÃÎÊµÄurl£º"+BreadthFirstTraversal.getUNVisitedURL_Size());
-			logger.info("»î¶¯µÄÏß³ÌÊı:"+webcontrol.pool.getActiveCount());
-//			logger.info("´ıĞ´µÄDocumentµÄ¸öÊıÎª:"+CrawlWebCentralThread.webpages.getSize());
+			logger.info("æœªè®¿é—®çš„urlï¼š"+BreadthFirstTraversal.getUNVisitedURL_Size());
+			logger.info("æ´»åŠ¨çš„çº¿ç¨‹æ•°:"+webcontrol.pool.getActiveCount());
+//			logger.info("å¾…å†™çš„Documentçš„ä¸ªæ•°ä¸º:"+CrawlWebCentralThread.webpages.getSize());
 			if (BreadthFirstTraversal.getUNVisitedURL_Size()> 100 * webcontrol.pool
 					.getActiveCount()
 					&& webcontrol.pool.getActiveCount() < 10) {
@@ -162,10 +162,10 @@ public class CrawlWebCentralThread {
 						+ webcontrol.pool.getActiveCount());
 			}
 			
-			//×îºó½«µÃµ½documentsĞ´ÈëÎÄ¼şÖĞ
+			//æœ€åå°†å¾—åˆ°documentså†™å…¥æ–‡ä»¶ä¸­
 			
 			try {
-				logger.info("Ö÷Ïß³ÌË¯Ãß1s");
+				logger.info("ä¸»çº¿ç¨‹ç¡çœ 1s");
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

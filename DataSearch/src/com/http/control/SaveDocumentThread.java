@@ -15,7 +15,7 @@ import java.util.Calendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.search.DAO.Connect;
+import com.search.dao.Connect;
 import com.search.data.Document;
 
 /**
@@ -41,10 +41,10 @@ public class SaveDocumentThread extends Thread{
 		while (true){
 				if(CrawlWebCentralThread.webpages.hasNext()){
 					try {
-						//È¡³öÒ»¸öDocument
+						//å–å‡ºä¸€ä¸ªDocument
 						Document document=CrawlWebCentralThread.webpages.nextDocument();
 						while(document==null){
-							logger.info("Ğ´ÎÄµµÏß³ÌË¯Ãß1s");
+							logger.info("å†™æ–‡æ¡£çº¿ç¨‹ç¡çœ 1s");
 							Thread.sleep(1000);
 							document=CrawlWebCentralThread.webpages.nextDocument();
 						}
@@ -52,19 +52,19 @@ public class SaveDocumentThread extends Thread{
 						
 						logger.info("writing id="+document.getID()+" document");
 						
-						//ĞòÁĞ»¯
+						//åºåˆ—åŒ–
 						ByteArrayOutputStream attributes_out=new ByteArrayOutputStream();
 						ObjectOutputStream attributes_object=new ObjectOutputStream(attributes_out);
 						attributes_object.writeObject(document.getStore_attributes());
 						ByteArrayInputStream attributes_in=new ByteArrayInputStream(attributes_out.toByteArray());
 						
-						//ĞòÁĞ»¯
+						//åºåˆ—åŒ–
 						ByteArrayOutputStream indexattributes_out=new ByteArrayOutputStream();
 						ObjectOutputStream indexattributes_object=new ObjectOutputStream(indexattributes_out);
 						indexattributes_object.writeObject(document.getIndex_attributes());
 						ByteArrayInputStream indexattributes_in=new ByteArrayInputStream(indexattributes_out.toByteArray());
 						
-						//Ğ´Õ¼Î»·û
+						//å†™å ä½ç¬¦
 						stmt.setLong(1, document.getID());
 						stmt.setInt(2, document.getRanks());
 						stmt.setString(3, document.getUrl());
@@ -73,9 +73,9 @@ public class SaveDocumentThread extends Thread{
 						stmt.setAsciiStream(5,attributes_in);
 						stmt.setAsciiStream(6,indexattributes_in);
 						stmt.execute();
-						logger.info("±£´æÎÄµµ³É¹¦");
+						logger.info("ä¿å­˜æ–‡æ¡£æˆåŠŸ");
 					} catch (Exception e) {
-						logger.fatal("Ğ´DocumentÊ§°Ü");
+						logger.fatal("å†™Documentå¤±è´¥");
 						e.printStackTrace();
 						System.exit(0);
 						
@@ -83,8 +83,8 @@ public class SaveDocumentThread extends Thread{
 				}
 				else{		
 					try {
-						//Ë¯Ãß10s;
-						logger.info("Ğ´ÎÄµµÏß³ÌË¯Ãß1s");
+						//ç¡çœ 10s;
+						logger.info("å†™æ–‡æ¡£çº¿ç¨‹ç¡çœ 1s");
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block

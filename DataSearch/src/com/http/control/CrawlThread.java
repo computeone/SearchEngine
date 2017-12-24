@@ -7,8 +7,8 @@ import com.html.parser.HtmlLinkFilterChain;
 import com.html.parser.HtmlParser;
 import com.html.parser.SuseURLFilter;
 import com.html.parser.URLFilterChain;
-import com.http.Search.BreadthFirstTraversal;
-import com.http.Search.CrawlUrl;
+import com.http.traversal.BreadthFirstTraversal;
+import com.http.traversal.CrawlUrl;
 import com.http.connect.FileDownload;
 import com.http.connect.HttpConnect;
 import com.http.connect.HttpConnectPool;
@@ -38,17 +38,17 @@ public class CrawlThread extends Thread {
 		while (crawlurl!= null) {
 			try {
 				logger.info("Task url:" + crawlurl.getOriUrl());
-				logger.info("²ãÊı:"+crawlurl.getLayer());
+				logger.info("å±‚æ•°:"+crawlurl.getLayer());
 				logger.entry("httpconnect");
-				// ´´½¨Á¬½Ó
+				// åˆ›å»ºè¿æ¥
 				httpconnect = HttpConnectPool.getHttpConnect();
 				httpconnect.setCrawlUrl(crawlurl);
-				// ½¨Á¢Á¬½Ó
+				// å»ºç«‹è¿æ¥
 				httpconnect.Connect();
 				httpconnect.printFields();
 				//
 				logger.exit("httpconnect");
-				// ÏÂÔØÎÄ¼ş
+				// ä¸‹è½½æ–‡ä»¶
 				
 				FileDownload htmldownload=null;
 				if(httpconnect.isDownload()){
@@ -62,41 +62,41 @@ public class CrawlThread extends Thread {
 					logger.exit("HtmlDownLoad");
 				}
 				
-				//ÏÂÔØÍê³ÉÖ®ºóÊÍ·ÅÁ¬½Ó
+				//ä¸‹è½½å®Œæˆä¹‹åé‡Šæ”¾è¿æ¥
 				httpconnect.releaseConnect();
 				HttpConnectPool.releaseHttpConnect(httpconnect);
 				logger.debug("Release Connect");
 				// htmldownload.printFile();
 				
 				
-				// ½«·ÃÎÊ¹ıµÄ½ÚµãÌí¼Óµ½visitedÁĞ±í
+				// å°†è®¿é—®è¿‡çš„èŠ‚ç‚¹æ·»åŠ åˆ°visitedåˆ—è¡¨
 				
 				
-				// ½âÎöhtmlÎÄ¼ş
+				// è§£æhtmlæ–‡ä»¶
 				if(htmldownload!=null){
 					logger.debug("parser:"+htmldownload.isParser());
-					//ÅĞ¶ÏÊÇ²»ÊÇ¿ÉÒÔ½âÎöµÄ
+					//åˆ¤æ–­æ˜¯ä¸æ˜¯å¯ä»¥è§£æçš„
 					if (htmldownload.isParser()) {
 						
 						logger.entry("HtmlParser");
 						DocumentParser htmlparser = new HtmlParser(htmldownload.getFile(),htmldownload.getCrawlUrl());
 										
-						// ½«½âÎö³öÀ´µÄURLÌí¼Ó½øtodoÁĞ±í
+						// å°†è§£æå‡ºæ¥çš„URLæ·»åŠ è¿›todoåˆ—è¡¨
 						HtmlParser parser=(HtmlParser)htmlparser;
 						parser.registerLinkFilterChain(new HtmlLinkFilterChain());
 						
-						//×¢²áurl¹ıÂËÆ÷
+						//æ³¨å†Œurlè¿‡æ»¤å™¨
 						URLFilterChain chain=new URLFilterChain();
 						chain.addFilter(new SuseURLFilter());
 						parser.registerURLFilter(chain);
 						parser.parser();
 						logger.exit("HtmlParser");
 						
-						// µü´ú¼ÓÈë±íÖĞ
+						// è¿­ä»£åŠ å…¥è¡¨ä¸­
 					}
 				}
 								
-				// È¡³öÀ´Ò»¸öÓÅÏÈ¼¶×î¸ßµÄurl£¬Ìí¼Óµ½visitedurlÖĞ
+				// å–å‡ºæ¥ä¸€ä¸ªä¼˜å…ˆçº§æœ€é«˜çš„urlï¼Œæ·»åŠ åˆ°visitedurlä¸­
 				CrawlUrl new_crawlurl= BreadthFirstTraversal
 						.getUNVisitedURL();
 								
@@ -105,11 +105,11 @@ public class CrawlThread extends Thread {
 				} else {
 					crawlurl = null;
 				}
-				logger.info("ĞÂµÄCrawlUrl:"+crawlurl.getOriUrl());
+				logger.info("æ–°çš„CrawlUrl:"+crawlurl.getOriUrl());
 				logger.info("----------------------------------------------");
 
 			} catch (Exception e) {
-				//Èç¹ûÃ»ÓĞhttpÁ¬½ÓÁËË¯ÃßµÈ´ı100ms
+				//å¦‚æœæ²¡æœ‰httpè¿æ¥äº†ç¡çœ ç­‰å¾…100ms
 				if (e instanceof NOHttpConnectException) {
 					try {
 						Thread.sleep(100);
@@ -119,7 +119,7 @@ public class CrawlThread extends Thread {
 					}
 					continue;
 				}
-				//ÊÍ·ÅÁ¬½Ó£¬È¡µÃĞÂµÄurl
+				//é‡Šæ”¾è¿æ¥ï¼Œå–å¾—æ–°çš„url
 				HttpConnectPool.releaseHttpConnect(httpconnect);
 				CrawlUrl new_crawlurl = BreadthFirstTraversal
 						.getUNVisitedURL();
@@ -128,7 +128,7 @@ public class CrawlThread extends Thread {
 				} else {
 					crawlurl = null;
 				}
-				logger.info("ĞÂµÄCrawlUrl:"+crawlurl.getOriUrl());
+				logger.info("æ–°çš„CrawlUrl:"+crawlurl.getOriUrl());
 				logger.fatal("Connect Default! or Download default!");
 				logger.info("-----------------------------------------------");
 			}

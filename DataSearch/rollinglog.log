@@ -1,8 +1,0 @@
-2013-06-13 15:49:16,211 [pool-1-thread-5] INFO  168 HtmlParser - link:http://tw.suse.edu.cn/view.aspx?id=492/info.aspx?menu_str=xwtz
-2013-06-13 15:49:14,821 [main] INFO  150 com.http.control.CrawlWebCentralThread - 未访问的url：13729
-2013-06-13 15:49:16,403 [main] INFO  151 com.http.control.CrawlWebCentralThread - 活动的线程数:10
-2013-06-13 15:49:16,240 [pool-1-thread-5] INFO  168 HtmlParser - link:http://tw.suse.edu.cn/view.aspx?id=492/info.aspx?menu_str=xwtz_xwkb
-2013-06-13 15:49:16,409 [pool-1-thread-5] INFO  168 HtmlParser - link:http://tw.suse.edu.cn/view.aspx?id=492/info.aspx?menu_str=xwtz_tzgg
-2013-06-13 15:49:16,409 [pool-1-thread-5] INFO  168 HtmlParser - link:http://tw.suse.edu.cn/view.aspx?id=492/info.aspx?menu_str=sztz
-2013-06-13 15:49:16,410 [pool-1-thread-5] INFO  168 HtmlParser - link:http://tw.suse.edu.cn/view.aspx?id=492/info.aspx?menu_str=sztz_xywh
-2013-06-13 15:49:16,410 [pool-1-thread-5] INFO  168 HtmlParser - link:http://tw.suse.edu.cn/view.aspx?id=492/info.aspx?menu_str=sztz_shsj

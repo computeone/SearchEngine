@@ -14,19 +14,19 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.http.Search.BreadthFirstTraversal;
-import com.http.Search.CrawlUrl;
+import com.http.traversal.BreadthFirstTraversal;
+import com.http.traversal.CrawlUrl;
 
 /*
- * HTTPÁ¬½ÓÖ÷ÒªµÄÀà
+ * HTTPè¿æ¥ä¸»è¦çš„ç±»
  */
 public class HttpConnect {
-	private CrawlUrl crawlurl;//×¥È¡µ½µÄURL 
-	private InputStream in;//ÍøÂçÊä³öÈëÁ÷
-	private OutputStream out;//ÍøÂçÊä³öÁ÷
+	private CrawlUrl crawlurl;//æŠ“å–åˆ°çš„URL 
+	private InputStream in;//ç½‘ç»œè¾“å‡ºå…¥æµ
+	private OutputStream out;//ç½‘ç»œè¾“å‡ºæµ
 	private Map<String, List<String>> fields;
-	private HttpRequestHeader  httprequestheader;//httpÇëÇóÍ·
-	private HttpResponseHeader httpresponseheader;//http´ğ¸´Í·
+	private HttpRequestHeader  httprequestheader;//httpè¯·æ±‚å¤´
+	private HttpResponseHeader httpresponseheader;//httpç­”å¤å¤´
 	private HttpURLConnection httpconnect;
 	private Logger logger = LogManager.getLogger("HttpConnect");
 	public CrawlUrl getCrawlurl() {
@@ -64,7 +64,7 @@ public class HttpConnect {
 				continue;
 			}
 			
-			//ÉèÖÃcontent-Type
+			//è®¾ç½®content-Type
 			if(key.equals("Content-Type")){
 				List<String> content_type=header.get(key);
 				String document_type=content_type.get(0);
@@ -106,41 +106,41 @@ public class HttpConnect {
 		this.crawlurl=crawlurl;
 	}
 	/*
-	 * Á¬½Ó³É¹¦Ê±£¬´¦Àí·½·¨
+	 * è¿æ¥æˆåŠŸæ—¶ï¼Œå¤„ç†æ–¹æ³•
 	 */
 	public void success() throws Exception {
 		if (httpconnect.getResponseCode() == 301
 				|| httpconnect.getResponseCode() == 302) {
 //			this.redirect();
-			logger.info("·ÃÎÊÊ§°ÜURL:"+crawlurl.getOriUrl());
+			logger.info("è®¿é—®å¤±è´¥URL:"+crawlurl.getOriUrl());
 		}
 		else{
 			in = httpconnect.getInputStream();
 			fields = httpconnect.getHeaderFields();
 			
 			
-			//ÉèÖÃhttpresponseheaderºÍcrawlurl
+			//è®¾ç½®httpresponseheaderå’Œcrawlurl
 			httpresponseheader = new HttpResponseHeader();
 			this.setHttpResponseHeader(fields);
 			this.setCrawlUrl();	
-			logger.info("³É¹¦·ÃÎÊÁËURL£º"+crawlurl.getOriUrl());
+			logger.info("æˆåŠŸè®¿é—®äº†URLï¼š"+crawlurl.getOriUrl());
 		}
 		
 	}
 
 	/*
-	 * ¶ªÆúÁ¬½Ó
+	 * ä¸¢å¼ƒè¿æ¥
 	 */
 	public void discard() throws Exception {
-		logger.info("·ÃÎÊÊ§°ÜURL:"+crawlurl.getOriUrl());
+		logger.info("è®¿é—®å¤±è´¥URL:"+crawlurl.getOriUrl());
 		throw new Exception();
 	}
 
 	/*
-	 * ÖØ¶¨ÏòÁ¬½Ó
+	 * é‡å®šå‘è¿æ¥
 	 */
 	public void redirect() throws Exception {
-		logger.info("ÖØ¶¨ÏòURL:"+crawlurl.getOriUrl());
+		logger.info("é‡å®šå‘URL:"+crawlurl.getOriUrl());
 		String redirecturl = this.getHttpresponseheader().getLocation();
 		crawlurl.setOriUrl(redirecturl);
 		Connect();
@@ -158,17 +158,17 @@ public class HttpConnect {
 		}
 	}
 	/*
-	 * Á¬½ÓµÄÖ÷Òª·½·¨
+	 * è¿æ¥çš„ä¸»è¦æ–¹æ³•
 	 */
 	public void Connect() throws Exception {
 		
-		//·ÃÎÊ¹ıµÄ£¬¼ÓÈëvisitiedurl±íÖĞ
-		logger.info("¼ÓÈëVistiedUrl±íÖĞURL:"+crawlurl.getOriUrl());
+		//è®¿é—®è¿‡çš„ï¼ŒåŠ å…¥visitiedurlè¡¨ä¸­
+		logger.info("åŠ å…¥VistiedUrlè¡¨ä¸­URL:"+crawlurl.getOriUrl());
 		BreadthFirstTraversal.add_known_URLVisited(crawlurl);
 		
 		SimpleHttpURLParser httpparser = new SimpleHttpURLParser();
 		boolean result = httpparser.vertifyURL(crawlurl.getOriUrl());
-		logger.info("Á¬½Óµ½url:"+crawlurl.getOriUrl());
+		logger.info("è¿æ¥åˆ°url:"+crawlurl.getOriUrl());
 		if (!result) {
 			throw new IOException();
 		}
@@ -184,7 +184,7 @@ public class HttpConnect {
 		}
 		
 	}
-	// ÉèÖÃÏìÓ¦Í·µÄÏî
+	// è®¾ç½®å“åº”å¤´çš„é¡¹
 	public void releaseConnect() {
 		httpconnect.disconnect();
 	}
@@ -196,18 +196,18 @@ public class HttpConnect {
 		logger.info("encoding:"+crawlurl.getCharSet());
 	}
 	
-	//ÉèÖÃÎÄµµÀàĞÍ
+	//è®¾ç½®æ–‡æ¡£ç±»å‹
 	private void setContentType(){
 		crawlurl.setType(httpresponseheader.getContent_Type());
 		logger.info("content-type:"+crawlurl.getType());
 	}
 	
-	//ÉèÖÃÎÄµµ±àÂëÀàĞÍ
+	//è®¾ç½®æ–‡æ¡£ç¼–ç ç±»å‹
 	private void setEncoding() {
 		crawlurl.setCharSet(httpresponseheader.getContent_Encoding());
 	}
 	public void printFields() throws IOException {
-		// ½âÎöhttpµÄÍ·Êı¾İ
+		// è§£æhttpçš„å¤´æ•°æ®
 		System.out.println("Http Header:");
 		Set<String> keys=fields.keySet();
 		for(String key:keys){

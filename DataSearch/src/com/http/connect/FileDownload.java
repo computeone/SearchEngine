@@ -9,24 +9,24 @@ import java.io.InputStreamReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.http.Search.CrawlUrl;
-import com.search.DAO.Connect;
+import com.http.traversal.CrawlUrl;
+import com.search.dao.Connect;
 /*
- * Ò»°ãÓÃ·¨¼ûFileDownloadTest
+ * ä¸€èˆ¬ç”¨æ³•è§FileDownloadTest
  */
 public class FileDownload {
 	
-	//¾ø¶ÔÂ·¾¶±íÊ¾Îªrootdir+host+path
+	//ç»å¯¹è·¯å¾„è¡¨ç¤ºä¸ºrootdir+host+path
 	private File file;
 	private CrawlUrl crawlurl;
 	private Logger logger = LogManager.getLogger("HtmlDownload");
-	private String host;// Ö÷»ú Èç:www.baidu.com/index ÔòhostÎªwww.baidu.com
-	private String path;// Ä¿Â¼ Â·¾¶ Èç£ºwww.baidu.com/index/index.html Ôòdefault_filenameÎªindex/index.html
-	private String rootdir="d:\\spider";// ¸ùÄ¿Â¼
-	private String encoding="utf-8";// ±àÂë
+	private String host;// ä¸»æœº å¦‚:www.baidu.com/index åˆ™hostä¸ºwww.baidu.com
+	private String path;// ç›®å½• è·¯å¾„ å¦‚ï¼šwww.baidu.com/index/index.html åˆ™default_filenameä¸ºindex/index.html
+	private String rootdir="d:\\spider";// æ ¹ç›®å½•
+	private String encoding="utf-8";// ç¼–ç 
 	private InputStream in;
 
-	// ¹¹Ôì·½·¨
+	// æ„é€ æ–¹æ³•
 	public FileDownload( InputStream in) {
 		this.in = in;
 	}
@@ -63,10 +63,10 @@ public class FileDownload {
 	}
 
 	/*
-	 * µÃµ½ÎÄµµµÄ±àÂë
+	 * å¾—åˆ°æ–‡æ¡£çš„ç¼–ç 
 	 */
 	
-	// ½âÎöURL result[2]=host result[4]=path
+	// è§£æURL result[2]=host result[4]=path
 	public String[] parseURL() {
 		SimpleHttpURLParser urlparser = new SimpleHttpURLParser();
 		String result[] = urlparser.parserURL(crawlurl.getOriUrl());
@@ -74,7 +74,7 @@ public class FileDownload {
 		this.path =result[4];
 		String[] dirs=null;
 		
-		//Èç¹û·ûºÏÏÂÃæÌõ¼ş·µ»Ønull
+		//å¦‚æœç¬¦åˆä¸‹é¢æ¡ä»¶è¿”å›null
 		if(path==null){
 			return dirs;
 		}
@@ -86,10 +86,10 @@ public class FileDownload {
 		}
 		return dirs;
 	}
-	//ÅĞ¶ÏÕâ¸öÍøÒ³ÊÇ²»ÊÇĞèÒªÏÂÔØ
+	//åˆ¤æ–­è¿™ä¸ªç½‘é¡µæ˜¯ä¸æ˜¯éœ€è¦ä¸‹è½½
 	public boolean isParser() {
 
-		//Í¨¹ıÅĞ¶Ï·µ»ØµÄÎÄµµµÄÀàĞÍÀ´ÅĞ¶Ï
+		//é€šè¿‡åˆ¤æ–­è¿”å›çš„æ–‡æ¡£çš„ç±»å‹æ¥åˆ¤æ–­
 		if(crawlurl.getType()==null){
 			return true;
 		}
@@ -102,13 +102,13 @@ public class FileDownload {
 	}
 
 	/*
-	 * ÎÄ¼şÏÂÔØµÄÖ÷Òª·½·¨
+	 * æ–‡ä»¶ä¸‹è½½çš„ä¸»è¦æ–¹æ³•
 	 */
 	public void download() throws Exception {
 		logger.info("encoding:"+crawlurl.getCharSet());
-		logger.info("ÎÄµµÀàĞÍ:"+crawlurl.getType());
+		logger.info("æ–‡æ¡£ç±»å‹:"+crawlurl.getType());
 		
-		String[] dirs = this.parseURL();// ½âÎöurl
+		String[] dirs = this.parseURL();// è§£æurl
 		SimpleHttpURLParser dirparser = new SimpleHttpURLParser();
 		
 		File hostdir = new File(rootdir + "/" + host);
@@ -119,15 +119,15 @@ public class FileDownload {
 			filename="index.html";
 		}
 		else{
-			// ¼ì²éÊÇ²»ÊÇº¬ÓĞ·Ç·¨×Ö·û
+			// æ£€æŸ¥æ˜¯ä¸æ˜¯å«æœ‰éæ³•å­—ç¬¦
 			for (int i = 0; i < dirs.length; i++) {
 				dirs[i] = dirparser.deleteIllegalChar(dirs[i])+"_dir";
-				//³¤¶È³¬¹ı256Ôò½Ø¶Ï
+				//é•¿åº¦è¶…è¿‡256åˆ™æˆªæ–­
 				if (dirs[i].length() > 256) {
 					dirs[i] = dirs[i].substring(0, 256);
 				}
 			}
-			// ´´½¨ÏàÓ¦µÄÄ¿Â¼
+			// åˆ›å»ºç›¸åº”çš„ç›®å½•
 			for (int i = 0; i < dirs.length - 1; i++) {
 				File tempdir = new File(currentdir, dirs[i]);
 				tempdir.mkdir();
@@ -137,17 +137,17 @@ public class FileDownload {
 			filename=filename.substring(0, filename.length()-4);
 		}
 			
-		// Ğ´µ½ÏàÓ¦µÄÎÄ¼şÖĞ
+		// å†™åˆ°ç›¸åº”çš„æ–‡ä»¶ä¸­
 		File d=new File(currentdir);
 		boolean b=d.mkdirs();
-		logger.info("ÏÂÔØµ½Ä¿Â¼:"+d.getAbsolutePath()+"-->"+b);
+		logger.info("ä¸‹è½½åˆ°ç›®å½•:"+d.getAbsolutePath()+"-->"+b);
 		file = new File(currentdir+"/"+filename);
 		boolean isCreateFile=file.createNewFile();
-		logger.info("´´½¨ÎÄ¼ş:"+isCreateFile);
-		logger.info("ÏÂÔØÎÄ¼ş¾ø¶ÔÂ·¾¶:"+file.getAbsolutePath());
+		logger.info("åˆ›å»ºæ–‡ä»¶:"+isCreateFile);
+		logger.info("ä¸‹è½½æ–‡ä»¶ç»å¯¹è·¯å¾„:"+file.getAbsolutePath());
 		
 		
-		//Ğ´ÎÄ¼ş
+		//å†™æ–‡ä»¶
 		FileOutputStream fout = new FileOutputStream(file);
 		int ch;
 		while ((ch = in.read()) != -1) {
@@ -155,11 +155,11 @@ public class FileDownload {
 		}
 		in.close();
 		fout.close();
-		logger.info("Ğ´ÎÄ¼ş³É¹¦");
+		logger.info("å†™æ–‡ä»¶æˆåŠŸ");
 	}
 
 	
-	// ´òÓ¡ÎÄ¼ş
+	// æ‰“å°æ–‡ä»¶
 	public void printFile() throws Exception {
 		FileInputStream in = new FileInputStream(file);
 		InputStreamReader reader = new InputStreamReader(in, encoding);

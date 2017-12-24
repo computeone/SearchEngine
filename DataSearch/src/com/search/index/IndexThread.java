@@ -13,9 +13,9 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.search.DAO.CRUD;
-import com.search.DAO.Connect;
-import com.search.Search.ShellSort;
+import com.search.dao.CRUD;
+import com.search.dao.Connect;
+import com.common.*;
 
 public class IndexThread extends Thread {
 	private LinkedList<Token_Structure> indexs;
@@ -106,11 +106,11 @@ public class IndexThread extends Thread {
 		while (iterator.hasNext()) {
 			try {
 				
-				// ÉèÖÃ´ÊÌõµÄunicode´úÂë
+				// è®¾ç½®è¯æ¡çš„unicodeä»£ç 
 				Token_Structure index=iterator.next();
 				byte[] unicode = index.getTerm().getBytes();
 				String sql = this.SaveToken_sql(unicode.length);
-				// ³¤¶È³¬¹ı×î´óÖµ,½Ø¶Ï
+				// é•¿åº¦è¶…è¿‡æœ€å¤§å€¼,æˆªæ–­
 				String term=null;
 				if (index.getTerm().length() > 250) {
 					term=index.getTerm().substring(0, 254);
@@ -120,7 +120,7 @@ public class IndexThread extends Thread {
 				}
 				
 				Token_Structure updated_index = CRUD.selectIndex(term);
-				// Èç¹û´æÔÚÔòÖ´ĞĞ¸üĞÂ
+				// å¦‚æœå­˜åœ¨åˆ™æ‰§è¡Œæ›´æ–°
 				if (updated_index != null) {
 					LinkedList<Long> updated_list = updated_index
 							.getTokens_id();
@@ -131,9 +131,9 @@ public class IndexThread extends Thread {
 						updated_list.addLast(id);
 						frequency++;
 					}
-					// Ö´ĞĞÅÅĞò
+					// æ‰§è¡Œæ’åº
 					ShellSort.Sort(updated_list,new LongCompare());
-					// ½øĞĞĞòÁĞ»¯
+					// è¿›è¡Œåºåˆ—åŒ–
 					updated_index.setFrequency(frequency);
 					ByteArrayOutputStream selected_bout = new ByteArrayOutputStream();
 					ObjectOutputStream selected_out = new ObjectOutputStream(
@@ -141,7 +141,7 @@ public class IndexThread extends Thread {
 					selected_out.writeObject(updated_list);
 
 					PreparedStatement stmt = con.prepareStatement(this.Save_update(unicode.length));
-					// Ğ´Õ¼Î»·ûµÄ±äÁ¿
+					// å†™å ä½ç¬¦çš„å˜é‡
 					
 					ByteArrayInputStream updated_bin = new ByteArrayInputStream(
 							selected_bout.toByteArray());
@@ -154,17 +154,17 @@ public class IndexThread extends Thread {
 					stmt.execute();
 					stmt.close();
 				}
-				// Ö´ĞĞ²åÈë²Ù×÷
+				// æ‰§è¡Œæ’å…¥æ“ä½œ
 				else {
-					// ½øĞĞÅÅĞòtokens_id
+					// è¿›è¡Œæ’åºtokens_id
 					LinkedList<Long> tokens_id = index.getTokens_id();
 					ShellSort.Sort(tokens_id, new LongCompare());
-					// ĞòÁĞ»¯tokes_id
+					// åºåˆ—åŒ–tokes_id
 					ByteArrayOutputStream bout = new ByteArrayOutputStream();
 					ObjectOutputStream out = new ObjectOutputStream(bout);
 					out.writeObject(tokens_id);
 					PreparedStatement stmt = con.prepareStatement(sql);
-					// Ğ´Õ¼Î»·ûµÄ±äÁ¿
+					// å†™å ä½ç¬¦çš„å˜é‡
 					
 					ByteArrayInputStream bin = new ByteArrayInputStream(
 							bout.toByteArray());

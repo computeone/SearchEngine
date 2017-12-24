@@ -1,4 +1,4 @@
-package com.search.Search;
+package com.search.search;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
-import com.search.DAO.Connect;
+import com.search.dao.Connect;
 import com.search.data.Field;
 import com.search.data.IDhandler;
 

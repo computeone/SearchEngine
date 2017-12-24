@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.http.Search.CrawlUrl;
+import com.http.traversal.*;
 import com.http.connect.FileDownload;
 import com.http.connect.HttpConnect;
 

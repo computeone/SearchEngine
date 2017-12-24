@@ -1,4 +1,4 @@
-package com.search.DAO;
+package com.search.dao;
 
 import java.sql.Connection;
 import java.sql.SQLException;

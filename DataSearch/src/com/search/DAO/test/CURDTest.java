@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.search.DAO.test;
+package com.search.dao.test;
 
 
 
@@ -11,7 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.search.DAO.CRUD;
+import com.search.dao.CRUD;
 import com.search.data.Document;
 
 /**

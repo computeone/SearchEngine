@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.http.Search.CrawlUrl;
+import com.http.traversal.CrawlUrl;
 import com.http.connect.HttpConnect;
 import com.http.connect.HttpResponseHeader;
 

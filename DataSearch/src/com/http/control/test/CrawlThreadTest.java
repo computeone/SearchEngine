@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.http.Search.CrawlUrl;
+import com.http.traversal.CrawlUrl;
 import com.http.connect.HttpConnectPool;
 import com.http.control.CrawlThread;
 

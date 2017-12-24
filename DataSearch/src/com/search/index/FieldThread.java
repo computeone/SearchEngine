@@ -13,7 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.search.DAO.Connect;
+import com.search.dao.Connect;
 import com.search.data.Field;
 import com.search.data.IDhandler;
 
@@ -47,11 +47,11 @@ public class FieldThread extends Thread {
 				Field field=iterator.next();
 				PreparedStatement stmt = con.prepareStatement(sql);
 
-				//ĞòÁĞ»¯
+				//åºåˆ—åŒ–
 //				ByteArrayInputStream bin = new ByteArrayInputStream(field
 //						.getText().getBytes());	
 				
-				// ĞòÁĞ»¯
+				// åºåˆ—åŒ–
 				ByteArrayOutputStream attributes_out=new ByteArrayOutputStream();
 				ObjectOutputStream attributes_object=new ObjectOutputStream(attributes_out);
 				attributes_object.writeObject(field.getAllAttributes());

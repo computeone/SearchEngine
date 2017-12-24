@@ -15,7 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.search.DAO.Connect;
+import com.search.dao.Connect;
 import com.search.data.Document;
 
 public class DocumentThread extends Thread {
@@ -55,19 +55,19 @@ public class DocumentThread extends Thread {
 //				logger.info("keywords:"+document.getIndex_attribute("keywords"));
 //				logger.info("description:"+document.getIndex_attribute("description"));
 				
-				//ĞòÁĞ»¯
+				//åºåˆ—åŒ–
 				ByteArrayOutputStream attributes_out=new ByteArrayOutputStream();
 				ObjectOutputStream attributes_object=new ObjectOutputStream(attributes_out);
 				attributes_object.writeObject(document.getStore_attributes());
 				ByteArrayInputStream attributes_in=new ByteArrayInputStream(attributes_out.toByteArray());
 				
-				//ĞòÁĞ»¯
+				//åºåˆ—åŒ–
 				ByteArrayOutputStream indexattributes_out=new ByteArrayOutputStream();
 				ObjectOutputStream indexattributes_object=new ObjectOutputStream(indexattributes_out);
 				indexattributes_object.writeObject(document.getIndex_attributes());
 				ByteArrayInputStream indexattributes_in=new ByteArrayInputStream(indexattributes_out.toByteArray());
 				
-				//Ğ´Õ¼Î»·û
+				//å†™å ä½ç¬¦
 				stmt.setLong(1, document.getID());
 				stmt.setInt(2, document.getRanks());
 				stmt.setString(3, document.getUrl());

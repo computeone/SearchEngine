@@ -1,4 +1,4 @@
-package com.search.Search;
+package com.search.search;
 
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.search.DAO.CRUD;
+import com.search.dao.CRUD;
 import com.search.analyzer.SimpleAnalyzer;
 import com.search.data.Document;
 import com.search.data.Field;

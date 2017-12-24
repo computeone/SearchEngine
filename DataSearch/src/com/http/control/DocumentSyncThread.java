@@ -11,7 +11,7 @@ import java.sql.Statement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.search.DAO.Connect;
+import com.search.dao.Connect;
 
 /**
  * @author niubaisui
@@ -35,12 +35,12 @@ public class DocumentSyncThread extends Thread{
 		try{
 			con=Connect.getConnection();
 		}catch(Exception e){
-			logger.fatal("Êı¾İ¿âÁ¬½ÓÊ§°Ü");
+			logger.fatal("æ•°æ®åº“è¿æ¥å¤±è´¥");
 			e.printStackTrace();
 		}
 		
 		try {
-			logger.info("Í¬²½Ïß³ÌÏÈË¯Ãß100s");
+			logger.info("åŒæ­¥çº¿ç¨‹å…ˆç¡çœ 100s");
 			Thread.sleep(100000);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
@@ -49,7 +49,7 @@ public class DocumentSyncThread extends Thread{
 		while(true){			
 			
 			try{
-				//µÃµ½×îĞ¡µÄid
+				//å¾—åˆ°æœ€å°çš„id
 				Statement min_stmt=con.createStatement();
 				ResultSet min_resultset=min_stmt.executeQuery(min_document);
 				while(min_resultset.next()){
@@ -58,7 +58,7 @@ public class DocumentSyncThread extends Thread{
 					logger.info("min_id:"+min_id);
 				}
 				
-				//µÃµ½×î´óµÄid
+				//å¾—åˆ°æœ€å¤§çš„id
 				Statement max_stmt=con.createStatement();
 				ResultSet max_resultset=max_stmt.executeQuery(max_document);
 				while(max_resultset.next()){
@@ -67,7 +67,7 @@ public class DocumentSyncThread extends Thread{
 					logger.info("max_id:"+max_id);
 				}
 				
-				//¸üĞÂrank
+				//æ›´æ–°rank
 				PreparedStatement url_stmt=con.prepareStatement(url_sql);
 				PreparedStatement priority_stmt=con.prepareStatement(priority_sql);
 				PreparedStatement stmt=con.prepareStatement(sql);
@@ -75,10 +75,10 @@ public class DocumentSyncThread extends Thread{
 				
 				for(long i=min_id;i<=max_id;i++){
 					
-					//´ÓdocumentÖĞ²éÑ¯µ½id¶ÔÓ¦µÄurl
+					//ä»documentä¸­æŸ¥è¯¢åˆ°idå¯¹åº”çš„url
 					
 					long id=i<<40;
-					logger.info("ÕıÔÚÍ¬²½id="+id+"µÄÎÄµµ");
+					logger.info("æ­£åœ¨åŒæ­¥id="+id+"çš„æ–‡æ¡£");
 					
 					
 					url_stmt.setLong(1, id);
@@ -87,7 +87,7 @@ public class DocumentSyncThread extends Thread{
 					while(url_resultset.next()){
 						url=url_resultset.getString("url");
 					}					
-					//´ÓvisitdurlÖĞ²éÑ¯rank				
+					//ä»visitdurlä¸­æŸ¥è¯¢rank				
 					priority_stmt.setString(1, url);
 					ResultSet priority_resultset=priority_stmt.executeQuery();
 					int rank=-1;
@@ -99,19 +99,19 @@ public class DocumentSyncThread extends Thread{
 						continue;
 					}
 					
-					//¸üĞĞdocumnet rank					
+					//æ›´è¡Œdocumnet rank					
 					stmt.setInt(1, rank);
 					stmt.setLong(2, id);
 					stmt.executeUpdate();
-					logger.info("id="+id+"µÄDocumentÍ¬²½³É¹¦.");
+					logger.info("id="+id+"çš„DocumentåŒæ­¥æˆåŠŸ.");
 				}
 				
-				//Ë¯Ãß500s
-				logger.info("Ïß³Ì½«Ë¯Ãß100s");
+				//ç¡çœ 500s
+				logger.info("çº¿ç¨‹å°†ç¡çœ 100s");
 				Thread.sleep(100000);
 				
 			}catch(Exception e){
-				logger.fatal("Ïß³ÌÒì³£");
+				logger.fatal("çº¿ç¨‹å¼‚å¸¸");
 				e.printStackTrace();
 			}
 		}

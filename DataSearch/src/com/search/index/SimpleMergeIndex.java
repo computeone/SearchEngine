@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.search.Search.ShellSort;
+import com.common.*;
 import com.search.data.Document;
 import com.search.data.Field;
 import com.search.data.Token;
 /*
- * ½«´óÁ¿µÄË÷ÒıºÏ²¢ÓĞÀûÓÚ½«Ë÷ÒıĞ´ÈëÊı¾İ¿â
+ * å°†å¤§é‡çš„ç´¢å¼•åˆå¹¶æœ‰åˆ©äºå°†ç´¢å¼•å†™å…¥æ•°æ®åº“
  */
 public class SimpleMergeIndex {
 	private LinkedList<Document> documents=new LinkedList<Document>();
@@ -31,28 +31,28 @@ public class SimpleMergeIndex {
 		return fields;
 	}
 
-	//Ö÷ÒªµÄºËĞÄ·½·¨
+	//ä¸»è¦çš„æ ¸å¿ƒæ–¹æ³•
 	public void mergeIndex() throws Exception{
 		Sort();
 	}
 	
-	// ´ÓÎÄ¼şÖĞµÃµ½tokensÈ»ºóºÏ²¢ÅÅĞò
+	// ä»æ–‡ä»¶ä¸­å¾—åˆ°tokensç„¶ååˆå¹¶æ’åº
 	public void Sort() throws Exception {
 		LinkedList<LinkedList<Token>> t = new LinkedList<LinkedList<Token>>();
-//		// ´ÓÎÄ¼şÖĞµÃµ½tokens
+//		// ä»æ–‡ä»¶ä¸­å¾—åˆ°tokens
 		
 		for (Document document:documents) {
 			BuildIndex buildindex=new SimpleBuildIndex(document);
 			Index index=buildindex.buildIndex();
 			
 				
-			//½«Field¼ÓÈëfields
+			//å°†FieldåŠ å…¥fields
 			for(Field f:index.getFields()){
 				fields.addLast(f);
 			}
 				
 			LinkedList<Token> temp=new LinkedList<Token>();
-			//½«token¼ÓÈëtokens
+			//å°†tokenåŠ å…¥tokens
 			for(Token token:index.getTokens()){
 //				idhandler.setID(token.getID());
 //				System.out.println("document id:"+idhandler.getCurrent_Document_id()+" field id:"
@@ -66,7 +66,7 @@ public class SimpleMergeIndex {
 			t.addLast(temp);		
 		}
 		System.out.println("t:"+t.size());
-		// ½øĞĞºÏ²¢ÅÅĞò
+		// è¿›è¡Œåˆå¹¶æ’åº
 		while(t.size()!=1){
 			LinkedList<LinkedList<Token>> list = new LinkedList<LinkedList<Token>>();
 			list = this.Merge(t);
@@ -92,7 +92,7 @@ public class SimpleMergeIndex {
 			
 		}
 
-		// ×ª»¯ÎªÒ»¸öÎÄ¼ş²¢Éú³ÉË÷Òı
+		// è½¬åŒ–ä¸ºä¸€ä¸ªæ–‡ä»¶å¹¶ç”Ÿæˆç´¢å¼•
 		LinkedList<Token> index_list = new LinkedList<Token>();
 		Iterator<LinkedList<Token>> iterator_list = t.iterator();
 		while (iterator_list.hasNext()) {
@@ -105,12 +105,12 @@ public class SimpleMergeIndex {
 		tokens_structure = indexs;
 	}
 
-	// ½«Ò»¸ö´óĞ¡ÎªnµÄÓĞĞòlinkedlist<LinkedList<Token>> ºÏ²¢ÎªÒ»¸ö´óĞ¡Îª2/nµÄLinkedList<LinkedList<Token>>
+	// å°†ä¸€ä¸ªå¤§å°ä¸ºnçš„æœ‰åºlinkedlist<LinkedList<Token>> åˆå¹¶ä¸ºä¸€ä¸ªå¤§å°ä¸º2/nçš„LinkedList<LinkedList<Token>>
 	private LinkedList<LinkedList<Token>> Merge(
 			LinkedList<LinkedList<Token>> tokens){
 		LinkedList<LinkedList<Token>> t = new LinkedList<LinkedList<Token>>();
 		
-		//Èç¹ûÄÜ±»2Õû³ı
+		//å¦‚æœèƒ½è¢«2æ•´é™¤
 		if(tokens.size()%2==0){
 			while (!tokens.isEmpty()) {
 				t.addLast(TokenSort.MergeSort(tokens.pollFirst(), tokens.pollLast()));
@@ -129,7 +129,7 @@ public class SimpleMergeIndex {
 		return t;
 	}
 
-	// µÃµ½Ë÷Òı½á¹¹
+	// å¾—åˆ°ç´¢å¼•ç»“æ„
 	private LinkedList<Token_Structure> getIndexs(LinkedList<Token> linkedList) {
 		LinkedList<Token_Structure> index_list = new LinkedList<Token_Structure>();
 		while (!linkedList.isEmpty()) {
@@ -137,7 +137,7 @@ public class SimpleMergeIndex {
 			Token_Structure index = new Token_Structure(token.getTerm());
 			index.add(token.getID());
 			index_list.addLast(index);
-			int frequency = 1;// ÉèÖÃ´ÊÆµ
+			int frequency = 1;// è®¾ç½®è¯é¢‘
 			
 			
 			//
@@ -174,7 +174,7 @@ public class SimpleMergeIndex {
 	}
 	
 
-	// ½«Ë÷ÒıĞ´µ½ÌØ¶¨µÄÎÄ¼şÖĞ
+	// å°†ç´¢å¼•å†™åˆ°ç‰¹å®šçš„æ–‡ä»¶ä¸­
 	public void write_index_to_file(String dirpath) throws IOException {
 //		FileOutputStream out = new FileOutputStream(file);
 //		Iterator<Token_Structure> iterator = this.tokens_structure.iterator();
@@ -191,7 +191,7 @@ public class SimpleMergeIndex {
 //		out.close();
 	}
 
-	// ´òÓ¡Ë÷Òı
+	// æ‰“å°ç´¢å¼•
 	public void printIndex() throws Exception {
 		Iterator<Token_Structure> iterator = tokens_structure.iterator();
 		while (iterator.hasNext()) {
